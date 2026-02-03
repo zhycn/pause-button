@@ -4,7 +4,6 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CultureSection from '../components/CultureSection.astro';
 import PauseButton from '../components/PauseButton.astro';
-import { suggestions } from '../data/suggestions.ts';
 import zhCNLocale from '../data/locales/zh-CN.json';
 import enLocale from '../data/locales/en.json';
 
@@ -35,13 +34,13 @@ const description = locale.ui.fallbackMessage;
           <div class="space-y-4 animate-fade-in min-h-[180px] md:min-h-[240px] lg:min-h-[280px] flex flex-col justify-center w-full">
             <h1 
               id="main-title"
-              class="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-slate-100 dark:via-slate-300 dark:to-slate-100 bg-clip-text text-transparent tracking-tight transition-opacity duration-300"
+              class="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-slate-50 tracking-tight transition-opacity duration-500"
             >
               {currentLang === 'zh-CN' ? '暂停一下' : 'Take a Pause'}
             </h1>
             <p 
               id="main-description"
-              class="text-lg md:text-xl lg:text-2xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed transition-opacity duration-300 px-4"
+              class="text-lg md:text-xl lg:text-2xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed transition-opacity duration-500 px-4 font-light"
             >
               {currentLang === 'zh-CN' 
                 ? '在这个快节奏的世界里，给自己一个温柔的暂停' 
@@ -58,7 +57,7 @@ const description = locale.ui.fallbackMessage;
           </div>
           
           <!-- 提示文字 -->
-          <p class="text-sm md:text-base text-slate-500 dark:text-slate-500 animate-fade-in animation-delay-400 max-w-md">
+          <p class="text-sm md:text-base text-slate-500 dark:text-slate-500 animate-fade-in animation-delay-400 max-w-md font-light">
             {currentLang === 'zh-CN'
               ? '点击按钮，获得一条随机的暂停建议，继续点击可更换建议'
               : 'Click the button to get a random pause suggestion, keep clicking to change'}
@@ -75,7 +74,7 @@ const description = locale.ui.fallbackMessage;
   <Footer locale={locale} />
 </Layout>
 
-<script is:inline define:vars={{ suggestions, currentLang }}>
+<script is:inline define:vars={{ locale }}>
   (function() {
     // 等待 DOM 完全加载
     function initApp() {
@@ -88,6 +87,14 @@ const description = locale.ui.fallbackMessage;
         return;
       }
       
+      // 获取当前语言的建议数据
+      const suggestions = locale.suggestions || [];
+      
+      if (suggestions.length === 0) {
+        console.error('No suggestions available');
+        return;
+      }
+      
       let isFirstClick = true;
       
       // 显示建议
@@ -95,27 +102,36 @@ const description = locale.ui.fallbackMessage;
         // 如果是第一次点击，隐藏标题
         if (isFirstClick) {
           titleEl.style.opacity = '0';
+          titleEl.style.transform = 'translateY(-10px)';
+          titleEl.style.transition = 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+          
           setTimeout(function() {
             titleEl.textContent = '';
             titleEl.style.display = 'none';
             isFirstClick = false;
-          }, 300);
+          }, 500);
         }
         
         // 淡出动画
         descriptionEl.style.opacity = '0';
         descriptionEl.style.transform = 'translateY(-10px)';
+        descriptionEl.style.transition = 'all 0.3s cubic-bezier(0.77, 0, 0.175, 1)';
         
         // 等待淡出完成后更新内容
         setTimeout(function() {
           descriptionEl.textContent = suggestion;
-          descriptionEl.className = 'text-xl md:text-2xl lg:text-3xl text-slate-800 dark:text-slate-100 max-w-3xl mx-auto leading-relaxed font-medium transition-all duration-300 px-4';
-          descriptionEl.style.transform = 'translateY(10px)';
+          descriptionEl.className = 'text-xl md:text-2xl lg:text-3xl text-slate-900 dark:text-slate-50 max-w-3xl mx-auto leading-relaxed font-medium transition-all duration-500 px-4';
+          descriptionEl.style.opacity = '0';
+          descriptionEl.style.transform = 'translateY(10px) scale(0.98)';
+          
+          // 触发重排
+          void descriptionEl.offsetWidth;
           
           // 淡入动画
           setTimeout(function() {
             descriptionEl.style.opacity = '1';
-            descriptionEl.style.transform = 'translateY(0)';
+            descriptionEl.style.transform = 'translateY(0) scale(1)';
+            descriptionEl.style.transition = 'all 0.5s cubic-bezier(0.215, 0.61, 0.355, 1)';
           }, 50);
         }, 300);
       }
