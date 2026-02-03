@@ -1,131 +1,212 @@
 ---
-import Header from '../components/Header.astro';
-import HeroText from '../components/HeroText.astro';
+import Layout from '../layouts/Layout.astro';
+import AppContainer from '../components/AppContainer.astro';
 import PauseButton from '../components/PauseButton.astro';
-import CultureSection from '../components/CultureSection.astro';
-import Footer from '../components/Footer.astro';
-import '../styles/global.css';
-
-// Language detection and loading
-const supportedLocales = ['zh-CN', 'en'];
-
-// Get language from URL param
-const urlParams = Astro.url.searchParams;
-let userLang = urlParams.get('lang') || '';
-
-// Validate language
-if (userLang && !supportedLocales.includes(userLang)) {
-  userLang = 'en';
-}
-
-// Default to 'en' if no lang param
-if (!userLang) {
-  userLang = 'en';
-}
-
-// Load locale data
-const localeData = await import(`../data/locales/${userLang}.json`);
-const locale = localeData.default;
+import ThemeToggle from '../components/ThemeToggle.astro';
+import { suggestions, getRandomSuggestion } from '../data/suggestions.ts';
 ---
 
-<!doctype html>
-<html lang={userLang} class="scroll-smooth">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={locale.ui.fallbackMessage} />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+<Layout 
+  title="Pause Button · 暂停一下"
+  description="点击按钮，获得一条温柔的暂停建议。"
+>
+  <AppContainer>
+    <!-- 主题切换按钮 -->
+    <ThemeToggle />
     
-    <title>Pause Button · {locale.ui.logo}</title>
-    
-    <link rel="icon" href="data:," />
-    
-    <!-- Critical: Apply theme before page render to prevent flash -->
-    <script is:inline>
-      (function() {
-        try {
-          const savedTheme = localStorage.getItem('theme');
-          const html = document.documentElement;
-          
-          // Apply theme immediately
-          if (savedTheme === 'dark') {
-            html.classList.add('dark');
-          } else {
-            html.classList.remove('dark');
-            if (!savedTheme) {
-              localStorage.setItem('theme', 'light');
-            }
-          }
-        } catch (e) {
-          // localStorage might not be available
-        }
-      })();
-    </script>
-  </head>
-  <body class="text-gray-900 dark:text-gray-100 antialiased min-h-screen flex flex-col">
-    <!-- Header -->
-    <Header locale={locale} currentLang={userLang} />
+    <!-- 主内容区域 -->
+    <div class="flex flex-col items-center gap-8 max-w-2xl mx-auto text-center px-4">
+      <!-- 标题区域 -->
+      <div class="space-y-4 animate-fade-in min-h-[280px] md:min-h-[320px] flex flex-col justify-center">
+        <h1 
+          id="main-title"
+          class="text-4xl md:text-6xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-slate-100 dark:via-slate-300 dark:to-slate-100 bg-clip-text text-transparent tracking-tight transition-opacity duration-300"
+        >
+          暂停一下
+        </h1>
+        <p 
+          id="main-description"
+          class="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed transition-opacity duration-300 px-4"
+        >
+          在这个快节奏的世界里，给自己一个温柔的暂停
+        </p>
+      </div>
+      
+      <!-- 主按钮 -->
+      <div class="animate-fade-in-up animation-delay-200">
+        <PauseButton />
+      </div>
+      
+      <!-- 提示文字 -->
+      <p class="text-sm text-slate-500 dark:text-slate-500 animate-fade-in animation-delay-400">
+        点击按钮，获得一条随机的暂停建议，继续点击可更换建议
+      </p>
+    </div>
+  </AppContainer>
+</Layout>
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col pt-20 pb-12">
-      <!-- Hero Section -->
-      <div class="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
-        <!-- Hero Text -->
-        <HeroText locale={locale} />
+<script is:inline define:vars={{ suggestions }}>
+  (function() {
+    // 等待 DOM 完全加载
+    function initApp() {
+      const btn = document.getElementById('pause-btn');
+      const titleEl = document.getElementById('main-title');
+      const descriptionEl = document.getElementById('main-description');
+      
+      if (!btn || !titleEl || !descriptionEl) {
+        // 如果元素还没准备好，稍后再试
+        setTimeout(initApp, 100);
+        return;
+      }
+      
+      const originalTitle = titleEl.textContent;
+      const originalDescription = descriptionEl.textContent;
+      let resetTimer = null;
+      
+      // 显示建议
+      function showSuggestion(suggestion) {
+        // 清除之前的重置定时器
+        if (resetTimer) {
+          clearTimeout(resetTimer);
+          resetTimer = null;
+        }
         
-        <!-- Pause Button -->
-        <div class="animate-fade-in" style="animation-delay: 200ms">
-          <PauseButton locale={locale} />
-        </div>
-      </div>
-
-      <!-- Culture Section (only on large screens) -->
-      <div class="hidden lg:block">
-        <CultureSection locale={locale} />
-      </div>
-    </main>
-
-    <!-- Footer -->
-    <Footer locale={locale} />
-
-    <!-- Client-side language detection -->
-    <script>
-      (function() {
-        'use strict';
-        try {
-          const urlParams = new URLSearchParams(window.location.search);
+        // 淡出动画
+        titleEl.style.opacity = '0';
+        descriptionEl.style.opacity = '0';
+        descriptionEl.style.transform = 'translateY(-10px)';
+        
+        // 等待淡出完成后更新内容
+        setTimeout(function() {
+          titleEl.textContent = '';
+          titleEl.style.display = 'none';
+          descriptionEl.textContent = suggestion;
+          descriptionEl.className = 'text-xl md:text-2xl lg:text-3xl text-slate-800 dark:text-slate-100 max-w-3xl mx-auto leading-relaxed font-medium transition-all duration-300 px-4';
+          descriptionEl.style.transform = 'translateY(10px)';
           
-          // Only auto-detect if no lang param is present
-          if (!urlParams.has('lang')) {
-            const browserLang = navigator.language || navigator.languages?.[0] || 'en';
-            const supportedLocales = ['zh-CN', 'en'];
-            
-            // Try exact match first
-            let detectedLang = supportedLocales.find(lang => browserLang === lang);
-            
-            // If no exact match, try prefix match
-            if (!detectedLang) {
-              detectedLang = supportedLocales.find(lang => {
-                const prefix = browserLang.split('-')[0];
-                return lang.startsWith(prefix);
-              });
-            }
-            
-            // Default to English
-            detectedLang = detectedLang || 'en';
-            
-            // Only redirect if not default English
-            if (detectedLang !== 'en') {
-              const url = new URL(window.location.href);
-              url.searchParams.set('lang', detectedLang);
-              window.location.href = url.toString();
-            }
-          }
-        } catch (error) {
-          // Silent fail
-        }
-      })();
-    </script>
-  </body>
-</html>
+          // 淡入动画
+          setTimeout(function() {
+            titleEl.style.opacity = '1';
+            descriptionEl.style.opacity = '1';
+            descriptionEl.style.transform = 'translateY(0)';
+          }, 50);
+        }, 300);
+        
+        // 5秒后恢复原始内容
+        resetTimer = setTimeout(function() {
+          resetContent();
+        }, 5000);
+      }
+      
+      // 恢复原始内容
+      function resetContent() {
+        // 淡出动画
+        descriptionEl.style.opacity = '0';
+        descriptionEl.style.transform = 'translateY(-10px)';
+        
+        // 等待淡出完成后恢复内容
+        setTimeout(function() {
+          titleEl.textContent = originalTitle;
+          titleEl.style.display = 'block';
+          descriptionEl.textContent = originalDescription;
+          descriptionEl.className = 'text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed transition-all duration-300 px-4';
+          descriptionEl.style.transform = 'translateY(10px)';
+          
+          // 淡入动画
+          setTimeout(function() {
+            titleEl.style.opacity = '1';
+            descriptionEl.style.opacity = '1';
+            descriptionEl.style.transform = 'translateY(0)';
+          }, 50);
+        }, 300);
+      }
+      
+      // 按钮点击事件
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+        showSuggestion(randomSuggestion);
+      });
+    }
+    
+    // 多种方式确保 DOM 准备好
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  })();
+</script>
+
+<style>
+  @import "tailwindcss";
+  
+  /* 淡入动画 */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out forwards;
+  }
+  
+  .animate-fade-in-up {
+    animation: fade-in-up 0.8s ease-out forwards;
+    opacity: 0;
+  }
+  
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+  }
+  
+  .animation-delay-400 {
+    animation-delay: 0.4s;
+  }
+  
+  /* 响应式优化 */
+  @media (max-width: 640px) {
+    #pause-btn {
+      padding-left: 2rem;
+      padding-right: 2rem;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+      font-size: 1rem;
+      line-height: 1.5rem;
+    }
+    
+    #suggestion-modal > div > div {
+      padding: 1.5rem;
+    }
+    
+    #suggestion-text {
+      font-size: 1.125rem;
+      line-height: 1.75rem;
+    }
+  }
+</style>
