@@ -1,0 +1,25 @@
+---
+import PauseIcon from '../icons/PauseIcon.astro';
+---
+
+<a 
+  href="/" 
+  class="group relative flex items-center gap-2.5 text-lg font-semibold tracking-tight transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-rose-500 rounded-xl px-3 py-2 -ml-3 active:scale-[0.98]"
+  aria-label="Pause Button - 回到首页"
+>
+  <!-- 图标容器，添加动画效果 -->
+  <span class="relative inline-flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12 group-active:scale-95">
+    <span class="relative z-10 transition-colors duration-300 text-gray-900 dark:text-gray-50 group-hover:text-rose-600 dark:group-hover:text-rose-400">
+      <PauseIcon size={26} color="currentColor" />
+    </span>
+  </span>
+  
+  <!-- 文字容器 -->
+  <span class="relative inline-flex items-center">
+    <span class="text-gray-900 dark:text-gray-50 transition-colors duration-300 group-hover:text-rose-600 dark:group-hover:text-rose-400 font-semibold">
+      Pause Button
+    </span>
+    <!-- 下划线动画效果 -->
+    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-rose-600 dark:bg-rose-400 transition-all duration-300 group-hover:w-full"></span>
+  </span>
+</a>

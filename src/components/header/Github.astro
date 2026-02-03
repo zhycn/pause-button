@@ -1,0 +1,15 @@
+---
+import GithubIcon from '../icons/GithubIcon.astro';
+
+const githubUrl = 'https://github.com/zhycn/pause-button';
+---
+
+<a
+  href={githubUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="GitHub"
+  class="p-2 rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+>
+  <GithubIcon size={20} class="text-gray-700 dark:text-gray-300 transition-transform duration-200 hover:scale-110" />
+</a>

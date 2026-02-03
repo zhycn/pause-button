@@ -1,0 +1,134 @@
+---
+import LanguageIcon from '../icons/LanguageIcon.astro';
+import type { Locale } from '../../types/locale';
+import type { SupportedLocale } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+  currentLang: SupportedLocale;
+}
+
+const { locale, currentLang } = Astro.props;
+
+const supportedLangs = [
+  { code: 'zh-CN' as SupportedLocale, label: '中文', flag: '🇨🇳' },
+  { code: 'en' as SupportedLocale, label: 'English', flag: '🇺🇸' }
+];
+---
+
+<div class="relative group">
+  <button
+    id="lang-switcher-btn"
+    type="button"
+    aria-label={locale.ui.language}
+    aria-expanded="false"
+    class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 text-gray-700 dark:text-gray-300"
+  >
+    <LanguageIcon size={18} />
+    <span class="hidden sm:inline">
+      {supportedLangs.find(lang => lang.code === currentLang)?.flag || '🌐'}
+    </span>
+    <span class="hidden md:inline">
+      {supportedLangs.find(lang => lang.code === currentLang)?.label || currentLang}
+    </span>
+    <svg class="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+    </svg>
+  </button>
+
+  <!-- Dropdown Menu -->
+  <div
+    id="lang-dropdown"
+    class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 opacity-0 invisible transition-all duration-200 transform scale-95 z-50"
+    role="menu"
+  >
+    <div class="py-1">
+      {supportedLangs.map((lang) => (
+        <a
+          href={`?lang=${lang.code}`}
+          class={`flex items-center gap-2 px-4 py-2 text-sm transition-colors duration-200 ${
+            lang.code === currentLang
+              ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
+              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+          }`}
+          role="menuitem"
+        >
+          <span>{lang.flag}</span>
+          <span>{lang.label}</span>
+          {lang.code === currentLang && (
+            <svg class="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+          )}
+        </a>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    'use strict';
+    
+    function initLanguageSwitcher() {
+      const langBtn = document.getElementById('lang-switcher-btn');
+      const dropdown = document.getElementById('lang-dropdown');
+      
+      if (!langBtn || !dropdown) return;
+      
+      let isOpen = false;
+      
+      function toggleDropdown() {
+        isOpen = !isOpen;
+        langBtn.setAttribute('aria-expanded', isOpen.toString());
+        const arrow = document.getElementById('lang-arrow');
+        
+        if (isOpen) {
+          dropdown.classList.remove('opacity-0', 'invisible', 'scale-95');
+          dropdown.classList.add('opacity-100', 'visible', 'scale-100');
+          if (arrow) arrow.classList.add('rotate-180');
+        } else {
+          dropdown.classList.remove('opacity-100', 'visible', 'scale-100');
+          dropdown.classList.add('opacity-0', 'invisible', 'scale-95');
+          if (arrow) arrow.classList.remove('rotate-180');
+        }
+      }
+      
+      function closeDropdown() {
+        if (isOpen) {
+          isOpen = false;
+          langBtn.setAttribute('aria-expanded', 'false');
+          const arrow = document.getElementById('lang-arrow');
+          dropdown.classList.remove('opacity-100', 'visible', 'scale-100');
+          dropdown.classList.add('opacity-0', 'invisible', 'scale-95');
+          if (arrow) arrow.classList.remove('rotate-180');
+        }
+      }
+      
+      langBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDropdown();
+      });
+      
+      // 点击外部关闭
+      document.addEventListener('click', (e) => {
+        if (!langBtn.contains(e.target as Node) && !dropdown.contains(e.target as Node)) {
+          closeDropdown();
+        }
+      });
+      
+      // ESC 键关闭
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isOpen) {
+          closeDropdown();
+        }
+      });
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initLanguageSwitcher);
+    } else {
+      setTimeout(initLanguageSwitcher, 0);
+    }
+  })();
+</script>
