@@ -1,0 +1,52 @@
+---
+import type { Locale } from '../types/locale';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<section class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+  <!-- 标题 - 居中显示 -->
+  <h2 class="text-3xl sm:text-4xl lg:text-5xl font-light text-center mb-16 lg:mb-24 tracking-tight text-gray-900 dark:text-gray-50">
+    {locale.culture.title}
+  </h2>
+
+  <!-- 卡片网格 - 居中显示 -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10 max-w-6xl mx-auto">
+    {locale.culture.sections.map((section: any, index: number) => (
+      <div 
+        class="group relative rounded-2xl p-8 lg:p-10 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 transition-all duration-500 ease-out hover:-translate-y-2 hover:scale-[1.02] overflow-hidden shadow-sm hover:shadow-xl dark:hover:shadow-2xl"
+        style={{ animationDelay: `${index * 100}ms` }}
+      >
+        <!-- 悬停时的渐变光效 -->
+        <div class="absolute inset-0 bg-linear-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 dark:from-white/5 pointer-events-none"></div>
+        
+        <!-- 图标和标题容器 -->
+        <div class="relative z-10 flex items-start gap-4 mb-5">
+          <!-- 图标容器 -->
+          <div class="shrink-0 w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-50 dark:group-hover:bg-blue-950/30">
+            <span class="text-2xl transition-transform duration-300 group-hover:rotate-12">
+              {index === 0 ? '✨' : index === 1 ? '💫' : '🌟'}
+            </span>
+          </div>
+          
+          <!-- 标题 -->
+          <h3 class="text-xl lg:text-2xl font-semibold text-gray-900 dark:text-gray-50 transition-colors duration-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+            {section.title}
+          </h3>
+        </div>
+        
+        <!-- 描述文字 -->
+        <p class="leading-relaxed text-base lg:text-lg text-gray-600 dark:text-gray-400 relative z-10">
+          {section.description}
+        </p>
+        
+        <!-- 底部装饰线 -->
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-blue-500/0 via-purple-500/0 to-blue-500/0 group-hover:from-blue-500/50 group-hover:via-purple-500/30 group-hover:to-blue-500/50 transition-all duration-500"></div>
+      </div>
+    ))}
+  </div>
+</section>

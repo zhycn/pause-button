@@ -1,0 +1,229 @@
+---
+import type { Locale } from '../../types/locale';
+import FreshIcon from '../icons/FreshIcon.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<button
+  id="pause-btn"
+  type="button"
+  class="group relative px-10 py-5 sm:px-14 sm:py-6 md:px-16 md:py-7 rounded-2xl font-medium text-base sm:text-lg md:text-xl focus:outline-none focus-visible:ring-4 focus-visible:ring-offset-4 focus-visible:ring-blue-500/50 dark:focus-visible:ring-blue-400/50 transition-all duration-500 ease-out overflow-hidden select-none active:scale-[0.98]"
+  aria-label={locale.ui.fallbackMessage}
+  data-suggestions={JSON.stringify(locale.suggestions)}
+>
+  <!-- 外层光晕效果 -->
+  <div class="absolute -inset-1 bg-linear-to-br from-rose-400/20 via-pink-400/20 to-orange-400/20 dark:from-rose-500/30 dark:via-pink-500/30 dark:to-orange-500/30 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 -z-10"></div>
+  
+  <!-- 主背景 - 精致的多层渐变 -->
+  <div class="absolute inset-0 bg-linear-to-br from-rose-400 via-pink-400 to-orange-400 dark:from-rose-500 dark:via-pink-500 dark:to-orange-500 rounded-2xl transition-all duration-500 group-hover:from-rose-500 group-hover:via-pink-500 group-hover:to-orange-500 dark:group-hover:from-rose-600 dark:group-hover:via-pink-600 dark:group-hover:to-orange-600"></div>
+  
+  <!-- 内层渐变叠加 - 增加深度 -->
+  <div class="absolute inset-0 bg-linear-to-t from-white/10 via-transparent to-transparent rounded-2xl opacity-60"></div>
+  
+  <!-- 顶部高光 -->
+  <div class="absolute top-0 left-0 right-0 h-1/2 bg-linear-to-b from-white/30 via-white/10 to-transparent rounded-t-2xl"></div>
+  
+  <!-- 悬停时的动态光效 -->
+  <div class="absolute inset-0 bg-linear-to-br from-white/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+  
+  <!-- 悬停时的径向光晕 - 更精致 -->
+  <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-2xl" style={{ background: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 30%, transparent 60%)' }}></div>
+  
+  <!-- 边框高光 -->
+  <div class="absolute inset-0 rounded-2xl border border-white/20 dark:border-white/10 pointer-events-none"></div>
+  
+  <!-- 内容容器 -->
+  <span class="relative z-10 flex items-center gap-2.5 sm:gap-3 md:gap-3.5 text-white drop-shadow-lg">
+    <!-- 图标容器 - 带背景光效 -->
+    <span class="relative transition-all duration-500 group-hover:scale-110 group-hover:rotate-12 group-active:scale-95 inline-flex items-center justify-center">
+      <!-- 图标背景光晕 -->
+      <span class="absolute inset-0 rounded-full bg-white/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
+      <span class="relative z-10 inline-flex items-center justify-center">
+        <FreshIcon size={24} color="currentColor" />
+      </span>
+    </span>
+    <!-- 文字 -->
+    <span class="tracking-tight font-medium drop-shadow-md">{locale.ui.buttonText}</span>
+  </span>
+  
+  <!-- 按下时的涟漪效果 - 更精致 -->
+  <span class="absolute inset-0 rounded-2xl bg-white/50 scale-0 clicking:scale-150 opacity-0 clicking:opacity-100 transition-all duration-400 ease-out pointer-events-none"></span>
+  
+  <!-- 底部阴影渐变 -->
+  <div class="absolute bottom-0 left-0 right-0 h-2/5 bg-linear-to-t from-black/15 via-black/5 to-transparent rounded-b-2xl opacity-60"></div>
+  
+  <!-- 多层阴影效果 -->
+  <div class="absolute inset-0 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.08)] group-hover:shadow-[0_20px_60px_rgba(0,0,0,0.2),0_10px_30px_rgba(0,0,0,0.15),0_0_0_1px_rgba(255,255,255,0.1)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3),0_4px_12px_rgba(0,0,0,0.2)] dark:group-hover:shadow-[0_20px_60px_rgba(0,0,0,0.5),0_10px_30px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.15)] transition-all duration-500 -z-10"></div>
+</button>
+
+<script>
+  (function() {
+    'use strict';
+    
+    // Get suggestions from JSON data attribute
+    const suggestionsData = document.getElementById('pause-btn')?.getAttribute('data-suggestions');
+    let suggestions: string[] = [];
+    
+    if (suggestionsData) {
+      try {
+        const parsed = JSON.parse(suggestionsData);
+        if (Array.isArray(parsed)) {
+          suggestions = parsed;
+        }
+      } catch (e) {
+        console.error('[PauseButton] Failed to parse suggestions:', e);
+      }
+    }
+    
+    // Store used suggestions to avoid immediate repeats
+    let usedSuggestions: string[] = [];
+    
+    // Get a random suggestion, avoiding recent ones
+    function getRandomSuggestion(): string {
+      if (suggestions.length === 0) {
+        return '';
+      }
+      
+      // If we've used all suggestions, reset
+      if (usedSuggestions.length >= suggestions.length) {
+        usedSuggestions = [];
+      }
+      
+      // Filter out recently used suggestions
+      const available = suggestions.filter((s: string) => !usedSuggestions.includes(s));
+      const randomIndex = Math.floor(Math.random() * available.length);
+      const selected = available[randomIndex] || suggestions[Math.floor(Math.random() * suggestions.length)];
+      
+      // Add to used list
+      usedSuggestions.push(selected);
+      
+      return selected;
+    }
+    
+    // Show initial random suggestion on page load
+    function showInitialSuggestion() {
+      const initialSuggestion = getRandomSuggestion();
+      if (initialSuggestion) {
+        // Dispatch event to update hero text
+        const event = new CustomEvent('suggestion-updated', {
+          detail: { suggestion: initialSuggestion },
+          bubbles: true,
+          cancelable: false
+        });
+        document.dispatchEvent(event);
+      }
+    }
+    
+    function initPauseButton() {
+      const btnElement = document.getElementById('pause-btn');
+      if (!btnElement) {
+        console.error('[PauseButton] Button element not found');
+        return;
+      }
+      
+      const btn = btnElement as HTMLButtonElement;
+
+      if (suggestions.length === 0) {
+        console.error('[PauseButton] No suggestions available', suggestions);
+        return;
+      }
+
+      // Show initial suggestion after a short delay for smooth page load
+      setTimeout(() => {
+        showInitialSuggestion();
+      }, 500);
+
+      function handleClick(e: Event) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Prevent multiple rapid clicks
+        if (btn!.classList.contains('clicking')) {
+          return;
+        }
+        
+        btn!.classList.add('clicking');
+        
+        // Get next random suggestion
+        const nextSuggestion = getRandomSuggestion();
+        
+        if (!nextSuggestion) {
+          console.warn('[PauseButton] No suggestion available');
+          btn!.classList.remove('clicking');
+          return;
+        }
+        
+        // Dispatch custom event to update hero text
+        const event = new CustomEvent('suggestion-updated', {
+          detail: { suggestion: nextSuggestion },
+          bubbles: true,
+          cancelable: false
+        });
+        
+        document.dispatchEvent(event);
+        
+        // Remove clicking class after animation
+        setTimeout(() => {
+          btn!.classList.remove('clicking');
+        }, 300);
+      }
+
+      // Click event
+      btn.addEventListener('click', handleClick);
+      
+      // Keyboard support: Space or Enter
+      btn.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          handleClick(e);
+        }
+      });
+      
+      console.log('[PauseButton] Initialized successfully with', suggestions.length, 'suggestions');
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPauseButton);
+    } else {
+      setTimeout(initPauseButton, 0);
+    }
+  })();
+</script>
+
+<style>
+  /* 按钮基础样式优化 - 更精致 */
+  #pause-btn {
+    will-change: transform, box-shadow, filter;
+    transform: translateZ(0);
+    -webkit-tap-highlight-color: transparent;
+    backface-visibility: hidden;
+    position: relative;
+  }
+  
+  /* 悬停状态 - 精致的提升效果 */
+  #pause-btn:hover {
+    transform: translateY(-6px) translateZ(0) scale(1.02);
+    filter: brightness(1.05);
+  }
+  
+  /* 按下状态 */
+  #pause-btn.clicking {
+    transform: scale(0.97) translateY(-3px) translateZ(0);
+  }
+  
+  /* 激活状态 */
+  #pause-btn:active {
+    transform: scale(0.97) translateY(0) translateZ(0);
+  }
+  
+  /* 聚焦状态 */
+  #pause-btn:focus-visible {
+    transform: translateY(-3px) translateZ(0);
+  }
+</style>

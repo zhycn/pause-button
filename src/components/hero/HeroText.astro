@@ -1,0 +1,109 @@
+---
+import type { Locale } from '../../types/locale';
+
+interface Props {
+  locale: Locale;
+  suggestion?: string;
+}
+
+const { locale, suggestion } = Astro.props;
+const defaultTexts = locale.ui.defaultHeroTexts;
+---
+
+<div id="hero-text" class="text-center px-4 sm:px-6 lg:px-8 animate-fade-in">
+  <p 
+    id="hero-text-content"
+    class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-extralight transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center justify-center text-balance leading-[0.95] tracking-[-0.04em] max-w-7xl mx-auto text-gray-900 dark:text-gray-50"
+    style={{ 
+      minHeight: '1.2em',
+      fontWeight: '200',
+      fontFamily: 'var(--font-display)',
+      letterSpacing: '-0.05em'
+    }}
+    data-default-texts={JSON.stringify(defaultTexts)}
+  >
+    {suggestion || defaultTexts[0]}
+  </p>
+</div>
+
+<script>
+  (function() {
+    'use strict';
+    
+    // Get defaultTexts from JSON data attribute
+    const defaultTextsData = document.getElementById('hero-text-content')?.getAttribute('data-default-texts');
+    let defaultTexts = [];
+    
+    if (defaultTextsData) {
+      try {
+        defaultTexts = JSON.parse(defaultTextsData);
+      } catch (e) {
+        console.error('[HeroText] Failed to parse defaultTexts:', e);
+      }
+    }
+    
+    window.__heroTextDefaults = defaultTexts;
+    
+    function initHeroText() {
+      const heroTextEl = document.getElementById('hero-text-content');
+      if (!heroTextEl) {
+        console.error('[HeroText] Element not found');
+        return;
+      }
+
+      const defaultTexts = window.__heroTextDefaults;
+      if (!Array.isArray(defaultTexts) || defaultTexts.length === 0) {
+        console.error('[HeroText] No default texts available', defaultTexts);
+        return;
+      }
+
+      // Listen for suggestion updates
+      function handleSuggestionUpdate(e: CustomEvent) {
+        if (!heroTextEl || !e.detail?.suggestion) {
+          return;
+        }
+        
+        // 优雅的淡出 - 向上移动
+        heroTextEl.style.opacity = '0';
+        heroTextEl.style.transform = 'translateY(-12px)';
+        heroTextEl.style.filter = 'blur(4px)';
+        
+        setTimeout(() => {
+          if (heroTextEl) {
+            heroTextEl.textContent = e.detail.suggestion;
+            // 优雅的淡入 - 使用展开动画
+            heroTextEl.style.opacity = '1';
+            heroTextEl.style.transform = 'translateY(0) scale(1)';
+            heroTextEl.style.filter = 'blur(0)';
+          }
+        }, 400);
+      }
+
+      document.addEventListener('suggestion-updated', handleSuggestionUpdate as EventListener);
+
+      // Cleanup
+      window.addEventListener('beforeunload', () => {
+        document.removeEventListener('suggestion-updated', handleSuggestionUpdate as EventListener);
+      });
+      
+      console.log('[HeroText] Initialized successfully');
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initHeroText);
+    } else {
+      setTimeout(initHeroText, 0);
+    }
+  })();
+</script>
+
+<style>
+  #hero-text-content {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.4s cubic-bezier(0, 0, 0.2, 1), 
+                transform 0.4s cubic-bezier(0, 0, 0.2, 1),
+                filter 0.4s cubic-bezier(0, 0, 0.2, 1);
+  }
+</style>

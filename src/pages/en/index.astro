@@ -1,13 +1,13 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/header/Header.astro';
-import HeroText from '../components/hero/HeroText.astro';
-import PauseButton from '../components/hero/PauseButton.astro';
-import CultureSection from '../components/design/CultureSection.astro';
-import Footer from '../components/footer/Footer.astro';
-import { getLocale } from '../i18n';
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/header/Header.astro';
+import HeroText from '../../components/hero/HeroText.astro';
+import PauseButton from '../../components/hero/PauseButton.astro';
+import CultureSection from '../../components/design/CultureSection.astro';
+import Footer from '../../components/footer/Footer.astro';
+import { getLocale } from '../../i18n';
 
-// 使用Astro的currentLocale（在自动路由模式下，根路径会使用默认语言）
+// 使用Astro的currentLocale
 const currentLang = Astro.currentLocale as 'en' | 'zh-CN';
 const locale = getLocale(currentLang);
 

@@ -1,0 +1,101 @@
+---
+import SunIcon from '../icons/SunIcon.astro';
+import MoonIcon from '../icons/MoonIcon.astro';
+import type { Locale } from '../../types/locale';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<button
+  id="theme-switcher"
+  type="button"
+  class="p-2 rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+  aria-label={locale.ui.theme}
+  aria-pressed="false"
+>
+  <!-- Sun icon (light mode) -->
+  <SunIcon 
+    id="sun-icon"
+    size={20}
+    class="w-5 h-5 hidden dark:block text-gray-700 dark:text-gray-300 transition-transform duration-300 hover:rotate-90" 
+  />
+  <!-- Moon icon (dark mode) -->
+  <MoonIcon 
+    id="moon-icon"
+    size={20}
+    class="w-5 h-5 block dark:hidden text-gray-700 dark:text-gray-300 transition-transform duration-300 hover:-rotate-12" 
+  />
+</button>
+
+<script>
+  (function() {
+    'use strict';
+    
+    function initThemeSwitcher() {
+      const themeSwitcher = document.getElementById('theme-switcher');
+      const sunIcon = document.getElementById('sun-icon');
+      const moonIcon = document.getElementById('moon-icon');
+      
+      if (!themeSwitcher) return;
+      
+      function getTheme() {
+        if (typeof localStorage !== 'undefined') {
+          const stored = localStorage.getItem('theme');
+          if (stored === 'dark' || stored === 'light') {
+            return stored;
+          }
+        }
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      
+      function setTheme(theme: 'dark' | 'light') {
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('theme', theme);
+        }
+        updateThemeButton();
+      }
+      
+      function updateThemeButton() {
+        const isDark = document.documentElement.classList.contains('dark');
+        themeSwitcher.setAttribute('aria-pressed', isDark.toString());
+      }
+      
+      // 初始化主题
+      const initialTheme = getTheme();
+      setTheme(initialTheme);
+      
+      // 切换主题
+      themeSwitcher.addEventListener('click', () => {
+        const currentTheme = getTheme();
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        setTheme(newTheme);
+      });
+      
+      // 监听系统主题变化
+      if (window.matchMedia) {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        mediaQuery.addEventListener('change', (e) => {
+          // 只有在用户没有手动设置主题时才跟随系统
+          if (!localStorage.getItem('theme')) {
+            setTheme(e.matches ? 'dark' : 'light');
+          }
+        });
+      }
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initThemeSwitcher);
+    } else {
+      setTimeout(initThemeSwitcher, 0);
+    }
+  })();
+</script>
