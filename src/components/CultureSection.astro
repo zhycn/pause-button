@@ -1,6 +1,7 @@
 ---
 import type { Locale } from '../types/locale';
 
+
 interface Props {
   locale: Locale;
 }
@@ -15,7 +16,8 @@ const { locale } = Astro.props;
   >
     {locale.culture.title}
   </h2>
-  
+
+
   <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
     {locale.culture.sections.map((section: any, index: number) => (
       <div 

@@ -1,26 +1,22 @@
 ---
 // 暂停图标组件
 interface Props {
-  class?: string;
+  color?: string;
   size?: number;
 }
 
-const { class: className = "w-6 h-6", size = 24 } = Astro.props;
+const {size = 24, color = "currentColor"} = Astro.props;
 ---
 
-<svg 
-  class={className}
-  width={size} 
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width={size}
   height={size}
-  fill="none" 
-  stroke="currentColor" 
-  viewBox="0 0 24 24"
+  viewBox="0 0 1024 1024"
+  fill={color}
   aria-hidden="true"
-  stroke-width="2.5"
+  focusable="false"
+  class="icon"
 >
-  <path 
-    stroke-linecap="round" 
-    stroke-linejoin="round" 
-    d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" 
-  />
+    <path d="M512 1024C229.2224 1024 0 794.7776 0 512S229.2224 0 512 0s512 229.2224 512 512-229.2224 512-512 512z m0-921.6a409.6 409.6 0 1 0 0 819.2 409.6 409.6 0 0 0 0-819.2zM358.4 307.2h102.4v409.6H358.4V307.2z m204.8 0h102.4v409.6h-102.4V307.2z"  />
 </svg>

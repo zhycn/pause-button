@@ -2,8 +2,8 @@
  * 静态导入所有语言文件
  * 这是 Astro 5 的最佳实践，确保所有语言文件在构建时被正确打包
  */
-import enLocale from '../data/locales/en.json';
-import zhCNLocale from '../data/locales/zh-CN.json';
+import enLocale from './locales/en.json';
+import zhCNLocale from './locales/zh-CN.json';
 import type { Locale } from '../types/locale';
 
 /**
