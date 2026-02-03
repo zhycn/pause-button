@@ -1,16 +1,14 @@
 ---
 // 语言图标组件
 interface Props {
-  id?: string;
   color?: string;
   size?: number;
 }
 
-const {id="", size = 24, color = "currentColor"} = Astro.props;
+const {size = 24, color = "currentColor"} = Astro.props;
 ---
 
 <svg
-  id={id}
   xmlns="http://www.w3.org/2000/svg"
   width={size}
   height={size}
