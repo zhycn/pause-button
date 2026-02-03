@@ -1,12 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import CultureSection from '../components/CultureSection.astro';
-import PauseButton from '../components/PauseButton.astro';
-import { suggestions } from '../data/suggestions.ts';
-import zhCNLocale from '../data/locales/zh-CN.json';
-import enLocale from '../data/locales/en.json';
+import Header from '../components/header/Header.astro';
+import Footer from '../components/footer/Footer.astro';
+import CultureSection from '../components/design/CultureSection.astro';
+import PauseButton from '../components/hero/PauseButton.astro';
+import zhCNLocale from '../i18n/locales/zh-CN.json';
+import enLocale from '../i18n/locales/en.json';
 
 // 获取语言参数
 const url = Astro.url;
@@ -19,11 +18,12 @@ const title = currentLang === 'zh-CN'
   ? 'Pause Button · 暂停一下' 
   : 'Pause Button · Take a Pause';
 const description = locale.ui.fallbackMessage;
+const suggestions = locale.suggestions;
 ---
 
 <Layout title={title} description={description} lang={currentLang}>
   <!-- Header -->
-  <Header locale={locale} currentLang={currentLang} />
+  <Header locale={locale} currentLang={currentLang as 'zh-CN' | 'en'} />
 
   <!-- Main Content -->
   <main class="pt-16 min-h-screen flex flex-col">
@@ -52,8 +52,7 @@ const description = locale.ui.fallbackMessage;
           <!-- 主按钮 -->
           <div class="animate-fade-in-up animation-delay-200">
             <PauseButton 
-              buttonText={locale.ui.buttonText}
-              ariaLabel={locale.ui.fallbackMessage}
+              locale={locale}
             />
           </div>
           
