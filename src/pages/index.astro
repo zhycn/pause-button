@@ -28,13 +28,19 @@ const localeData = await import(`../data/locales/${userLang}.json`);
 const locale = localeData.default;
 ---
 
+<!doctype html>
 <html lang={userLang} class="scroll-smooth">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Pause Button · {locale.ui.logo}</title>
     <meta name="description" content={locale.ui.fallbackMessage} />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    
+    <title>Pause Button · {locale.ui.logo}</title>
+    
     <link rel="icon" href="data:," />
+    
     <!-- Critical: Apply theme before page render to prevent flash -->
     <script is:inline>
       (function() {
@@ -47,31 +53,31 @@ const locale = localeData.default;
             html.classList.add('dark');
           } else {
             html.classList.remove('dark');
-            // Set default if not set
             if (!savedTheme) {
               localStorage.setItem('theme', 'light');
             }
           }
         } catch (e) {
-          // localStorage might not be available (SSR, private browsing)
-          console.warn('[Theme] Failed to load theme:', e);
+          // localStorage might not be available
         }
       })();
     </script>
   </head>
-  <body class="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300 antialiased">
+  <body class="text-gray-900 dark:text-gray-100 antialiased min-h-screen flex flex-col">
     <!-- Header -->
     <Header locale={locale} currentLang={userLang} />
 
     <!-- Main Content -->
-    <main class="pt-24 pb-12 min-h-screen flex flex-col">
+    <main class="flex-1 flex flex-col pt-20 pb-12">
       <!-- Hero Section -->
-      <div class="flex-1 flex flex-col items-center justify-center px-6">
+      <div class="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
         <!-- Hero Text -->
         <HeroText locale={locale} />
         
         <!-- Pause Button -->
-        <PauseButton locale={locale} />
+        <div class="animate-fade-in" style="animation-delay: 200ms">
+          <PauseButton locale={locale} />
+        </div>
       </div>
 
       <!-- Culture Section (only on large screens) -->
@@ -98,7 +104,7 @@ const locale = localeData.default;
             // Try exact match first
             let detectedLang = supportedLocales.find(lang => browserLang === lang);
             
-            // If no exact match, try prefix match (e.g., 'zh' matches 'zh-CN')
+            // If no exact match, try prefix match
             if (!detectedLang) {
               detectedLang = supportedLocales.find(lang => {
                 const prefix = browserLang.split('-')[0];
@@ -117,7 +123,7 @@ const locale = localeData.default;
             }
           }
         } catch (error) {
-          console.warn('[Language] Failed to detect language:', error);
+          // Silent fail
         }
       })();
     </script>
