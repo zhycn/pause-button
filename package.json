@@ -1,5 +1,6 @@
 {
   "name": "pause-button",
+  "description": "A minimalist Pause Button to help humans breathe in a fast-paced world. ✨",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
@@ -9,6 +10,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.17.1"
+    "@tailwindcss/vite": "^4.1.18",
+    "astro": "^5.17.1",
+    "tailwindcss": "^4.1.18"
   }
 }
