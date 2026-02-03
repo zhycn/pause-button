@@ -11,30 +11,6 @@
 - 📱 **响应式设计** - 完美适配各种设备尺寸
 - ♿ **无障碍支持** - 遵循 WCAG 标准，支持键盘导航和屏幕阅读器
 
-## 🏗️ 项目结构
-
-```
-src/
-├── components/          # 组件目录
-│   ├── icons/          # SVG 图标组件
-│   │   ├── PauseIcon.astro
-│   │   ├── LightbulbIcon.astro
-│   │   ├── SunIcon.astro
-│   │   └── MoonIcon.astro
-│   ├── PauseButton.astro      # 主暂停按钮组件
-│   ├── SuggestionModal.astro  # 建议弹窗组件
-│   ├── ThemeToggle.astro      # 主题切换组件
-│   └── AppContainer.astro     # 应用容器组件
-├── data/
-│   └── suggestions.ts         # 暂停建议数据
-├── layouts/
-│   └── Layout.astro           # 主布局组件
-├── pages/
-│   └── index.astro            # 首页
-└── styles/
-    └── global.css             # 全局样式
-```
-
 ## 🎨 设计系统
 
 ### 配色方案
@@ -42,34 +18,6 @@ src/
 - **亮色主题**: 以白色和浅灰色为主，营造清新简洁的氛围
 - **暗色主题**: 使用深色背景，减少视觉疲劳
 - **渐变效果**: 按钮和装饰元素使用微妙的渐变增强视觉层次
-
-### 组件说明
-
-#### PauseButton
-主暂停按钮，具有以下特性：
-- 渐变背景（亮色/暗色主题自适应）
-- 悬停光效动画
-- 点击波纹效果
-- 图标微动效
-
-#### SuggestionModal
-建议弹窗组件：
-- 毛玻璃背景遮罩
-- 平滑的进入/退出动画
-- 装饰性图标
-- 支持 ESC 键和点击背景关闭
-
-#### ThemeToggle
-主题切换按钮：
-- 固定在右上角
-- 图标根据当前主题自动切换
-- 平滑的过渡动画
-
-#### AppContainer
-应用容器：
-- 渐变背景
-- 装饰性背景元素
-- 响应式布局
 
 ## 🚀 快速开始
 
