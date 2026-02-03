@@ -12,65 +12,132 @@ const defaultTexts = locale.ui.defaultHeroTexts;
   <p 
     id="hero-text-content"
     class="text-4xl md:text-6xl lg:text-7xl font-light text-gray-900 dark:text-gray-100 transition-all duration-500 ease-in-out min-h-[120px] md:min-h-[180px] flex items-center justify-center"
+    data-default-texts={JSON.stringify(defaultTexts)}
   >
     {suggestion || defaultTexts[0]}
   </p>
 </div>
 
-<script define:vars={{ defaultTexts }}>
-  const heroTextEl = document.getElementById('hero-text-content');
-  let currentIndex = 0;
-  let isShowingSuggestion = false;
-
-  // Auto-scroll default texts
-  function scrollDefaultTexts() {
-    if (isShowingSuggestion) return;
+<script>
+  (function() {
+    'use strict';
     
-    currentIndex = (currentIndex + 1) % defaultTexts.length;
-    if (heroTextEl) {
-      heroTextEl.style.opacity = '0';
-      setTimeout(() => {
-        if (heroTextEl) {
-          heroTextEl.textContent = defaultTexts[currentIndex];
-          heroTextEl.style.opacity = '1';
-        }
-      }, 300);
+    // Get defaultTexts from JSON data attribute
+    const defaultTextsData = document.getElementById('hero-text-content')?.getAttribute('data-default-texts');
+    let defaultTexts = [];
+    
+    if (defaultTextsData) {
+      try {
+        defaultTexts = JSON.parse(defaultTextsData);
+      } catch (e) {
+        console.error('[HeroText] Failed to parse defaultTexts:', e);
+      }
     }
-  }
+    
+    // Ensure defaultTexts is available globally
+    window.__heroTextDefaults = defaultTexts;
+    
+    function initHeroText() {
+      const heroTextEl = document.getElementById('hero-text-content');
+      if (!heroTextEl) {
+        console.error('[HeroText] Element not found');
+        return;
+      }
 
-  // Start auto-scroll (every 5 seconds)
-  let scrollInterval = setInterval(scrollDefaultTexts, 5000);
+      const defaultTexts = window.__heroTextDefaults;
+      if (!Array.isArray(defaultTexts) || defaultTexts.length === 0) {
+        console.error('[HeroText] No default texts available', defaultTexts);
+        return;
+      }
 
-  // Listen for suggestion updates
-  document.addEventListener('suggestion-updated', ((e: CustomEvent) => {
-    if (heroTextEl && e.detail?.suggestion) {
-      isShowingSuggestion = true;
-      clearInterval(scrollInterval);
-      
-      heroTextEl.style.opacity = '0';
-      setTimeout(() => {
-        if (heroTextEl) {
-          heroTextEl.textContent = e.detail.suggestion;
-          heroTextEl.style.opacity = '1';
-        }
-      }, 300);
+      let currentIndex = 0;
+      let isShowingSuggestion = false;
+      let scrollInterval: ReturnType<typeof setInterval> | null = null;
 
-      // Reset to default after 3 seconds
-      setTimeout(() => {
-        isShowingSuggestion = false;
-        if (heroTextEl) {
-          heroTextEl.style.opacity = '0';
-          setTimeout(() => {
-            if (heroTextEl) {
-              heroTextEl.textContent = defaultTexts[currentIndex];
-              heroTextEl.style.opacity = '1';
-            }
-          }, 300);
+      // Auto-scroll default texts
+      function scrollDefaultTexts() {
+        if (isShowingSuggestion || !heroTextEl) return;
+        
+        currentIndex = (currentIndex + 1) % defaultTexts.length;
+        heroTextEl.style.opacity = '0';
+        setTimeout(() => {
+          if (heroTextEl) {
+            heroTextEl.textContent = defaultTexts[currentIndex];
+            heroTextEl.style.opacity = '1';
+          }
+        }, 300);
+      }
+
+      // Start auto-scroll (every 5 seconds)
+      function startAutoScroll() {
+        if (scrollInterval) {
+          clearInterval(scrollInterval);
         }
         scrollInterval = setInterval(scrollDefaultTexts, 5000);
-      }, 3000);
+      }
+
+      startAutoScroll();
+
+      // Listen for suggestion updates
+      function handleSuggestionUpdate(e: CustomEvent) {
+        console.log('[HeroText] Received suggestion update:', e.detail);
+        
+        if (!heroTextEl || !e.detail?.suggestion) {
+          console.warn('[HeroText] Invalid suggestion update', e.detail);
+          return;
+        }
+        
+        isShowingSuggestion = true;
+        if (scrollInterval) {
+          clearInterval(scrollInterval);
+          scrollInterval = null;
+        }
+        
+        heroTextEl.style.opacity = '0';
+        setTimeout(() => {
+          if (heroTextEl) {
+            heroTextEl.textContent = e.detail.suggestion;
+            heroTextEl.style.opacity = '1';
+            console.log('[HeroText] Updated text to:', e.detail.suggestion);
+          }
+        }, 300);
+
+        // Reset to default after 3 seconds
+        setTimeout(() => {
+          isShowingSuggestion = false;
+          if (heroTextEl) {
+            heroTextEl.style.opacity = '0';
+            setTimeout(() => {
+              if (heroTextEl) {
+                heroTextEl.textContent = defaultTexts[currentIndex];
+                heroTextEl.style.opacity = '1';
+                console.log('[HeroText] Reset to default text');
+              }
+            }, 300);
+          }
+          startAutoScroll();
+        }, 3000);
+      }
+
+      document.addEventListener('suggestion-updated', handleSuggestionUpdate as EventListener);
+      console.log('[HeroText] Initialized successfully, listening for events');
+
+      // Cleanup on page unload
+      window.addEventListener('beforeunload', () => {
+        if (scrollInterval) {
+          clearInterval(scrollInterval);
+        }
+        document.removeEventListener('suggestion-updated', handleSuggestionUpdate as EventListener);
+      });
     }
-  }) as EventListener);
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initHeroText);
+    } else {
+      setTimeout(initHeroText, 0);
+    }
+  })();
 </script>
 
 <style>

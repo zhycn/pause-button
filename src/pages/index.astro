@@ -9,11 +9,16 @@ import '../styles/global.css';
 // Language detection and loading
 const supportedLocales = ['zh-CN', 'en'];
 
-// Get language from URL param or browser preference
+// Get language from URL param
 const urlParams = Astro.url.searchParams;
 let userLang = urlParams.get('lang') || '';
 
-// Default to 'en' if no lang param (browser detection happens client-side)
+// Validate language
+if (userLang && !supportedLocales.includes(userLang)) {
+  userLang = 'en';
+}
+
+// Default to 'en' if no lang param
 if (!userLang) {
   userLang = 'en';
 }
@@ -23,15 +28,38 @@ const localeData = await import(`../data/locales/${userLang}.json`);
 const locale = localeData.default;
 ---
 
-<html lang={userLang}>
+<html lang={userLang} class="scroll-smooth">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Pause Button · {locale.ui.logo}</title>
     <meta name="description" content={locale.ui.fallbackMessage} />
     <link rel="icon" href="data:," />
+    <!-- Critical: Apply theme before page render to prevent flash -->
+    <script is:inline>
+      (function() {
+        try {
+          const savedTheme = localStorage.getItem('theme');
+          const html = document.documentElement;
+          
+          // Apply theme immediately
+          if (savedTheme === 'dark') {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+            // Set default if not set
+            if (!savedTheme) {
+              localStorage.setItem('theme', 'light');
+            }
+          }
+        } catch (e) {
+          // localStorage might not be available (SSR, private browsing)
+          console.warn('[Theme] Failed to load theme:', e);
+        }
+      })();
+    </script>
   </head>
-  <body class="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+  <body class="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300 antialiased">
     <!-- Header -->
     <Header locale={locale} currentLang={userLang} />
 
@@ -57,29 +85,39 @@ const locale = localeData.default;
 
     <!-- Client-side language detection -->
     <script>
-      // Initialize theme on page load
       (function() {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        if (savedTheme === 'dark') {
-          document.documentElement.classList.add('dark');
-        }
-      })();
-
-      // Auto-detect language if no lang param
-      (function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (!urlParams.has('lang')) {
-          const browserLang = navigator.language || navigator.languages?.[0] || 'en';
-          const supportedLocales = ['zh-CN', 'en'];
-          const detectedLang = supportedLocales.find(lang => 
-            browserLang === lang || browserLang.startsWith(lang.split('-')[0])
-          ) || 'en';
+        'use strict';
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
           
-          if (detectedLang !== 'en') { // Only redirect if not default
-            const url = new URL(window.location.href);
-            url.searchParams.set('lang', detectedLang);
-            window.location.href = url.toString();
+          // Only auto-detect if no lang param is present
+          if (!urlParams.has('lang')) {
+            const browserLang = navigator.language || navigator.languages?.[0] || 'en';
+            const supportedLocales = ['zh-CN', 'en'];
+            
+            // Try exact match first
+            let detectedLang = supportedLocales.find(lang => browserLang === lang);
+            
+            // If no exact match, try prefix match (e.g., 'zh' matches 'zh-CN')
+            if (!detectedLang) {
+              detectedLang = supportedLocales.find(lang => {
+                const prefix = browserLang.split('-')[0];
+                return lang.startsWith(prefix);
+              });
+            }
+            
+            // Default to English
+            detectedLang = detectedLang || 'en';
+            
+            // Only redirect if not default English
+            if (detectedLang !== 'en') {
+              const url = new URL(window.location.href);
+              url.searchParams.set('lang', detectedLang);
+              window.location.href = url.toString();
+            }
           }
+        } catch (error) {
+          console.warn('[Language] Failed to detect language:', error);
         }
       })();
     </script>
