@@ -1,3 +1,12 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* 确保 html 和 body 在暗色主题下有正确的背景色 */
+html {
+  @apply bg-white dark:bg-gray-950;
+}
+
+body {
+  @apply bg-white dark:bg-gray-950;
+}

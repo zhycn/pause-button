@@ -13,7 +13,7 @@ const defaultTexts = locale.ui.defaultHeroTexts;
 <div id="hero-text" class="text-center px-4 sm:px-6 lg:px-8 animate-fade-in">
   <p 
     id="hero-text-content"
-    class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-extralight transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center justify-center text-balance leading-[0.95] tracking-[-0.04em] max-w-7xl mx-auto"
+    class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-extralight transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center justify-center text-balance leading-[0.95] tracking-[-0.04em] max-w-7xl mx-auto text-gray-900 dark:text-gray-50"
     style={{ 
       minHeight: '1.2em',
       fontWeight: '200',
@@ -57,69 +57,10 @@ const defaultTexts = locale.ui.defaultHeroTexts;
         return;
       }
 
-      let currentIndex = 0;
-      let isShowingSuggestion = false;
-      let scrollInterval: ReturnType<typeof setInterval> | null = null;
-
-      // Auto-scroll default texts with smooth animation
-      function scrollDefaultTexts() {
-        if (isShowingSuggestion || !heroTextEl) return;
-        
-        currentIndex = (currentIndex + 1) % defaultTexts.length;
-        
-        // 淡出
-        heroTextEl.style.opacity = '0';
-        heroTextEl.style.transform = 'translateY(8px)';
-        heroTextEl.style.filter = 'blur(4px)';
-        
-        setTimeout(() => {
-          if (heroTextEl && !isShowingSuggestion) {
-            heroTextEl.textContent = defaultTexts[currentIndex];
-            // 淡入
-            heroTextEl.style.opacity = '1';
-            heroTextEl.style.transform = 'translateY(0)';
-            heroTextEl.style.filter = 'blur(0)';
-          }
-        }, 400);
-      }
-
-      function startAutoScroll() {
-        if (scrollInterval) {
-          clearInterval(scrollInterval);
-        }
-        // 延长间隔，给用户更多时间阅读
-        scrollInterval = setInterval(scrollDefaultTexts, 6000);
-      }
-
-      // 检测用户是否在阅读（鼠标悬停时暂停）
-      let isHovering = false;
-      heroTextEl.addEventListener('mouseenter', () => {
-        isHovering = true;
-        if (scrollInterval) {
-          clearInterval(scrollInterval);
-          scrollInterval = null;
-        }
-      });
-      
-      heroTextEl.addEventListener('mouseleave', () => {
-        isHovering = false;
-        if (!isShowingSuggestion) {
-          startAutoScroll();
-        }
-      });
-
-      startAutoScroll();
-
       // Listen for suggestion updates
       function handleSuggestionUpdate(e: CustomEvent) {
         if (!heroTextEl || !e.detail?.suggestion) {
           return;
-        }
-        
-        isShowingSuggestion = true;
-        if (scrollInterval) {
-          clearInterval(scrollInterval);
-          scrollInterval = null;
         }
         
         // 优雅的淡出 - 向上移动
@@ -136,43 +77,16 @@ const defaultTexts = locale.ui.defaultHeroTexts;
             heroTextEl.style.filter = 'blur(0)';
           }
         }, 400);
-
-        // 4秒后恢复默认文本
-        setTimeout(() => {
-          isShowingSuggestion = false;
-          if (heroTextEl) {
-            // 淡出
-            heroTextEl.style.opacity = '0';
-            heroTextEl.style.transform = 'translateY(8px)';
-            heroTextEl.style.filter = 'blur(4px)';
-            
-            setTimeout(() => {
-              if (heroTextEl && !isShowingSuggestion) {
-                heroTextEl.textContent = defaultTexts[currentIndex];
-                // 淡入
-                heroTextEl.style.opacity = '1';
-                heroTextEl.style.transform = 'translateY(0)';
-                heroTextEl.style.filter = 'blur(0)';
-              }
-            }, 400);
-          }
-          
-          // 如果用户没有悬停，重新开始自动滚动
-          if (!isHovering) {
-            startAutoScroll();
-          }
-        }, 4000);
       }
 
       document.addEventListener('suggestion-updated', handleSuggestionUpdate as EventListener);
 
       // Cleanup
       window.addEventListener('beforeunload', () => {
-        if (scrollInterval) {
-          clearInterval(scrollInterval);
-        }
         document.removeEventListener('suggestion-updated', handleSuggestionUpdate as EventListener);
       });
+      
+      console.log('[HeroText] Initialized successfully');
     }
 
     // Initialize when DOM is ready
@@ -191,6 +105,5 @@ const defaultTexts = locale.ui.defaultHeroTexts;
     transition: opacity 0.4s cubic-bezier(0, 0, 0.2, 1), 
                 transform 0.4s cubic-bezier(0, 0, 0.2, 1),
                 filter 0.4s cubic-bezier(0, 0, 0.2, 1);
-    color: var(--color-text-primary);
   }
 </style>

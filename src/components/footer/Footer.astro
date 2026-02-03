@@ -1,47 +1,18 @@
 ---
-import type { Locale } from '../../types/locale';
-
-interface Props {
-  locale: Locale;
-}
-
-const { locale } = Astro.props;
+const year = new Date().getFullYear();
 ---
 
-<footer class="w-full mt-auto" style="boder-top: 1px solid var(--color-border); background: var(--color-bg-elevated);">
-  <div class="container py-8 lg:py-12">
-    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-      <!-- Links -->
-      <nav class="flex items-center gap-6 text-sm" aria-label="Footer navigation">
-        <a
-          href={locale.footer.links.github}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="font-medium transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-accent)] rounded"
-          style="color: var(--color-text-secondary);"
-        >
-          GitHub
-        </a>
-        <a
-          href={locale.footer.links.docs}
-          class="font-medium transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-accent)] rounded"
-          style="color: var(--color-text-secondary);"
-        >
-          Docs
-        </a>
-        <a
-          href={locale.footer.links.about}
-          class="font-medium transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-accent)] rounded"
-          style="color: var(--color-text-secondary);"
-        >
-          About
-        </a>
-      </nav>
-
-      <!-- Version & Copyright -->
-      <div class="text-sm text-center md:text-right" style="color: var(--color-text-tertiary);">
-        <span class="mr-2 font-mono">{locale.footer.version}</span>
-        <span>{locale.footer.copyright}</span>
+<footer class="w-full border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 sm:py-8">
+      <!-- Left: Copyright -->
+      <div class="text-sm text-gray-600 dark:text-gray-400">
+        Copyright © {year} Pause Button
+      </div>
+      
+      <!-- Right: License -->
+      <div class="text-sm text-gray-600 dark:text-gray-400">
+        Released under the MIT License.
       </div>
     </div>
   </div>
