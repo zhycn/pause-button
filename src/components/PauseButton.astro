@@ -1,0 +1,142 @@
+---
+interface Props {
+  locale: any;
+}
+
+const { locale } = Astro.props;
+---
+
+<button
+  id="pause-btn"
+  type="button"
+  class="relative group px-10 py-7 rounded-full font-semibold text-lg shadow-2xl hover:shadow-3xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-4 focus:ring-offset-white dark:focus:ring-offset-gray-950 focus:ring-gray-400 dark:focus:ring-gray-500 overflow-hidden"
+  aria-label={locale.ui.fallbackMessage}
+  data-suggestions={JSON.stringify(locale.suggestions)}
+>
+  <!-- Gradient Background - Light theme: dark gradient, Dark theme: light gradient -->
+  <span class="absolute inset-0 rounded-full bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-gray-100 dark:via-gray-50 dark:to-white transition-all duration-300"></span>
+  
+  <!-- Text Content -->
+  <span class="relative z-10 flex items-center gap-3 text-white dark:text-black transition-colors duration-300">
+    <span class="text-2xl transition-transform group-hover:scale-110 duration-300">⏸</span>
+    <span>{locale.ui.buttonText}</span>
+  </span>
+  
+  <!-- Hover Overlay Effect -->
+  <span class="absolute inset-0 rounded-full bg-white/10 dark:bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+  
+  <!-- Shine Effect on Hover -->
+  <span class="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-shine transition-opacity duration-500"></span>
+  
+  <!-- Ripple Effect on Click -->
+  <span class="absolute inset-0 rounded-full bg-white/20 dark:bg-black/20 scale-0 clicking:scale-100 opacity-0 clicking:opacity-100 transition-all duration-200 ease-out"></span>
+</button>
+
+<script>
+  (function() {
+    'use strict';
+    
+    // Get suggestions from JSON data attribute
+    const suggestionsData = document.getElementById('pause-btn')?.getAttribute('data-suggestions');
+    let suggestions = [];
+    
+    if (suggestionsData) {
+      try {
+        suggestions = JSON.parse(suggestionsData);
+      } catch (e) {
+        console.error('[PauseButton] Failed to parse suggestions:', e);
+      }
+    }
+    
+    // @ts-ignore - Global variable for suggestions
+    window.__pauseButtonSuggestions = suggestions;
+    
+    function initPauseButton() {
+      const btn = document.getElementById('pause-btn');
+      if (!btn) {
+        console.error('[PauseButton] Button element not found');
+        return;
+      }
+
+      // @ts-ignore - Global variable for suggestions
+      const suggestions = window.__pauseButtonSuggestions;
+      if (!Array.isArray(suggestions) || suggestions.length === 0) {
+        console.error('[PauseButton] No suggestions available', suggestions);
+        return;
+      }
+
+      function handleClick(e: Event) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Prevent multiple rapid clicks
+        if (btn.classList.contains('clicking')) {
+          return;
+        }
+        
+        btn.classList.add('clicking');
+        
+        const randomIndex = Math.floor(Math.random() * suggestions.length);
+        const randomSuggestion = suggestions[randomIndex];
+        
+        if (!randomSuggestion) {
+          console.warn('[PauseButton] Invalid suggestion at index', randomIndex);
+          btn.classList.remove('clicking');
+          return;
+        }
+        
+        console.log('[PauseButton] Clicked, dispatching suggestion:', randomSuggestion);
+        
+        // Dispatch custom event to update hero text
+        const event = new CustomEvent('suggestion-updated', {
+          detail: { suggestion: randomSuggestion },
+          bubbles: true,
+          cancelable: false
+        });
+        
+        const dispatched = document.dispatchEvent(event);
+        console.log('[PauseButton] Event dispatched:', dispatched);
+        
+        // Remove clicking class after animation
+        setTimeout(() => {
+          btn.classList.remove('clicking');
+        }, 300);
+      }
+
+      btn.addEventListener('click', handleClick);
+      console.log('[PauseButton] Initialized successfully with', suggestions.length, 'suggestions');
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPauseButton);
+    } else {
+      setTimeout(initPauseButton, 0);
+    }
+  })();
+</script>
+
+<style>
+  @keyframes shine {
+    0% {
+      transform: translateX(-100%) skewX(-15deg);
+    }
+    100% {
+      transform: translateX(200%) skewX(-15deg);
+    }
+  }
+  
+  .animate-shine {
+    animation: shine 0.6s ease-out;
+  }
+  
+  /* Prevent button jump on click */
+  #pause-btn {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+  
+  #pause-btn.clicking {
+    transform: scale(0.98) translateZ(0);
+  }
+</style>

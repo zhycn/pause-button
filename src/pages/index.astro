@@ -1,11 +1,131 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import HeroText from '../components/HeroText.astro';
+import PauseButton from '../components/PauseButton.astro';
+import CultureSection from '../components/CultureSection.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// Language detection and loading
+const supportedLocales = ['zh-CN', 'en'];
+
+// Get language from URL param
+const urlParams = Astro.url.searchParams;
+let userLang = urlParams.get('lang') || '';
+
+// Validate language
+if (userLang && !supportedLocales.includes(userLang)) {
+  userLang = 'en';
+}
+
+// Default to 'en' if no lang param
+if (!userLang) {
+  userLang = 'en';
+}
+
+// Load locale data
+const localeData = await import(`../data/locales/${userLang}.json`);
+const locale = localeData.default;
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<!doctype html>
+<html lang={userLang} class="scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={locale.ui.fallbackMessage} />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    
+    <title>Pause Button · {locale.ui.logo}</title>
+    
+    <link rel="icon" href="data:," />
+    
+    <!-- Critical: Apply theme before page render to prevent flash -->
+    <script is:inline>
+      (function() {
+        try {
+          const savedTheme = localStorage.getItem('theme');
+          const html = document.documentElement;
+          
+          // Apply theme immediately
+          if (savedTheme === 'dark') {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+            if (!savedTheme) {
+              localStorage.setItem('theme', 'light');
+            }
+          }
+        } catch (e) {
+          // localStorage might not be available
+        }
+      })();
+    </script>
+  </head>
+  <body class="text-gray-900 dark:text-gray-100 antialiased min-h-screen flex flex-col">
+    <!-- Header -->
+    <Header locale={locale} currentLang={userLang} />
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col pt-20 pb-12">
+      <!-- Hero Section -->
+      <div class="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
+        <!-- Hero Text -->
+        <HeroText locale={locale} />
+        
+        <!-- Pause Button -->
+        <div class="animate-fade-in" style="animation-delay: 200ms">
+          <PauseButton locale={locale} />
+        </div>
+      </div>
+
+      <!-- Culture Section (only on large screens) -->
+      <div class="hidden lg:block">
+        <CultureSection locale={locale} />
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <Footer locale={locale} />
+
+    <!-- Client-side language detection -->
+    <script>
+      (function() {
+        'use strict';
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          
+          // Only auto-detect if no lang param is present
+          if (!urlParams.has('lang')) {
+            const browserLang = navigator.language || navigator.languages?.[0] || 'en';
+            const supportedLocales = ['zh-CN', 'en'];
+            
+            // Try exact match first
+            let detectedLang = supportedLocales.find(lang => browserLang === lang);
+            
+            // If no exact match, try prefix match
+            if (!detectedLang) {
+              detectedLang = supportedLocales.find(lang => {
+                const prefix = browserLang.split('-')[0];
+                return lang.startsWith(prefix);
+              });
+            }
+            
+            // Default to English
+            detectedLang = detectedLang || 'en';
+            
+            // Only redirect if not default English
+            if (detectedLang !== 'en') {
+              const url = new URL(window.location.href);
+              url.searchParams.set('lang', detectedLang);
+              window.location.href = url.toString();
+            }
+          }
+        } catch (error) {
+          // Silent fail
+        }
+      })();
+    </script>
+  </body>
+</html>
