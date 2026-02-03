@@ -1,6 +1,8 @@
 ---
 import Logo from './Logo.astro';
 import GithubIcon from './GithubIcon.astro';
+import MobileDrawer from './MobileDrawer.astro';
+
 interface Props {
   locale: any;
   currentLang: string;
@@ -13,18 +15,18 @@ const supportedLangs = [
 ];
 ---
 
-<header class="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-gray-200/50 dark:border-gray-800/50">
+<header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-800/50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <!-- Logo -->
       <Logo />
 
-      <!-- Right side: GitHub, Language, Theme -->
-      <nav class="flex items-center gap-2 sm:gap-3" aria-label="Navigation">
+      <!-- Desktop Navigation -->
+      <nav class="hidden md:flex items-center gap-2 lg:gap-3" aria-label="Navigation">
         <!-- GitHub -->
         <GithubIcon />
 
-        <!-- Language Switcher - Enhanced Dropdown -->
+        <!-- Language Switcher -->
         <div class="relative">
           <select
             id="lang-switcher"
@@ -46,7 +48,7 @@ const supportedLangs = [
           </div>
         </div>
 
-        <!-- Theme Switcher - Enhanced -->
+        <!-- Theme Switcher -->
         <button
           id="theme-switcher"
           type="button"
@@ -64,6 +66,9 @@ const supportedLangs = [
           </svg>
         </button>
       </nav>
+
+      <!-- Mobile Menu Button -->
+      <MobileDrawer locale={locale} currentLang={currentLang} />
     </div>
   </div>
 </header>

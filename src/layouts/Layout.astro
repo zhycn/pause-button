@@ -5,16 +5,18 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  lang?: string;
 }
 
 const { 
   title = "Pause Button · 暂停一下",
-  description = "点击按钮，获得一条温柔的暂停建议。"
+  description = "点击按钮，获得一条温柔的暂停建议。",
+  lang = "zh-CN"
 } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="zh-CN" class="scroll-smooth">
+<html lang={lang} class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,7 +25,7 @@ const {
     <link rel="icon" href="data:," />
     <title>{title}</title>
   </head>
-  <body>
+  <body class="bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors duration-300">
     <slot />
   </body>
 </html>
