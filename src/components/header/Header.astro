@@ -1,6 +1,7 @@
 ---
 import type { Locale } from '../../types/locale';
 import type { SupportedLocale } from '../../i18n';
+import { getRelativeLocaleUrl } from 'astro:i18n';
 import Brand from './Brand.astro';
 import Github from './Github.astro';
 import Language from './Language.astro';
@@ -20,6 +21,12 @@ const supportedLangs = [
   { code: 'zh-CN' as SupportedLocale, label: '中文', flag: '🇨🇳' },
   { code: 'en' as SupportedLocale, label: 'English', flag: '🇺🇸' }
 ];
+
+// 使用Astro的i18n辅助函数生成语言切换URL
+const langUrls = supportedLangs.map(lang => ({
+  ...lang,
+  url: getRelativeLocaleUrl(lang.code, '')
+}));
 ---
 
 <header class="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
@@ -103,9 +110,9 @@ const supportedLangs = [
             {locale.ui.language}
           </label>
           <div class="space-y-1">
-            {supportedLangs.map((lang) => (
+            {langUrls.map((lang) => (
               <a
-                href={`?lang=${lang.code}`}
+                href={lang.url}
                 class={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 ${
                   lang.code === currentLang
                     ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'

@@ -61,9 +61,9 @@ export function detectLanguageFromHeaders(headers: Headers | null | undefined): 
  */
 export function detectLanguage(url: URL, headers?: Headers | null): SupportedLocale {
   // 1. 优先使用 URL 参数
-  const urlLang = detectLanguageFromURL(url);
-  if (urlLang !== defaultLocale || url.searchParams.has('lang')) {
-    return urlLang;
+  const langParam = url.searchParams.get('lang');
+  if (langParam && isValidLocale(langParam)) {
+    return langParam;
   }
   
   // 2. 如果没有 URL 参数且 headers 存在，使用 Accept-Language header
@@ -77,11 +77,18 @@ export function detectLanguage(url: URL, headers?: Headers | null): SupportedLoc
 
 /**
  * 生成语言切换 URL
+ * 在SSG模式下，返回相对路径以确保正确工作
  */
 export function getLanguageURL(currentURL: URL, newLocale: SupportedLocale): string {
-  const url = new URL(currentURL);
+  // 创建新的URL对象，避免修改原始URL
+  const url = new URL(currentURL.toString());
+  
+  // 设置语言参数
   url.searchParams.set('lang', newLocale);
-  return url.toString();
+  
+  // 返回相对路径（pathname + search + hash）
+  // 这样可以确保在SSG模式下正确工作
+  return url.pathname + url.search + url.hash;
 }
 
 /**

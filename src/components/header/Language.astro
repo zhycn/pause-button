@@ -2,6 +2,7 @@
 import LanguageIcon from '../icons/LanguageIcon.astro';
 import type { Locale } from '../../types/locale';
 import type { SupportedLocale } from '../../i18n';
+import { getRelativeLocaleUrl } from 'astro:i18n';
 
 interface Props {
   locale: Locale;
@@ -14,6 +15,12 @@ const supportedLangs = [
   { code: 'zh-CN' as SupportedLocale, label: '中文', flag: '🇨🇳' },
   { code: 'en' as SupportedLocale, label: 'English', flag: '🇺🇸' }
 ];
+
+// 使用Astro的i18n辅助函数生成语言切换URL
+const langUrls = supportedLangs.map(lang => ({
+  ...lang,
+  url: getRelativeLocaleUrl(lang.code, '')
+}));
 ---
 
 <div class="relative group">
@@ -31,7 +38,7 @@ const supportedLangs = [
     <span class="hidden md:inline">
       {supportedLangs.find(lang => lang.code === currentLang)?.label || currentLang}
     </span>
-    <svg class="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg id="lang-arrow" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
     </svg>
   </button>
@@ -43,10 +50,11 @@ const supportedLangs = [
     role="menu"
   >
     <div class="py-1">
-      {supportedLangs.map((lang) => (
+      {langUrls.map((lang) => (
         <a
-          href={`?lang=${lang.code}`}
-          class={`flex items-center gap-2 px-4 py-2 text-sm transition-colors duration-200 ${
+          href={lang.url}
+          data-lang={lang.code}
+          class={`lang-option flex items-center gap-2 px-4 py-2 text-sm transition-colors duration-200 ${
             lang.code === currentLang
               ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
               : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -71,10 +79,13 @@ const supportedLangs = [
     'use strict';
     
     function initLanguageSwitcher() {
-      const langBtn = document.getElementById('lang-switcher-btn');
-      const dropdown = document.getElementById('lang-dropdown');
+      const langBtnElement = document.getElementById('lang-switcher-btn');
+      const dropdownElement = document.getElementById('lang-dropdown');
       
-      if (!langBtn || !dropdown) return;
+      if (!langBtnElement || !dropdownElement) return;
+      
+      const langBtn = langBtnElement as HTMLElement;
+      const dropdown = dropdownElement as HTMLElement;
       
       let isOpen = false;
       
