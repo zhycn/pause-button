@@ -1,0 +1,116 @@
+---
+// import Header from '../components/Header.astro';
+import Header from '../components/header/Header.astro';
+import HeroText from '../components/HeroText.astro';
+import PauseButton from '../components/PauseButton.astro';
+import CultureSection from '../components/CultureSection.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+import { detectLanguage, getLocale, getHreflangURLs, type SupportedLocale } from '../i18n';
+
+// 检测当前语言（服务端）
+// 处理 Astro.request 可能不存在的情况（SSG 模式）
+const headers = Astro.request?.headers || null;
+const currentLang = detectLanguage(Astro.url, headers);
+
+const locale = getLocale(currentLang);
+
+// 生成 hreflang URLs（用于 SEO）
+const hreflangURLs = getHreflangURLs(Astro.url);
+---
+
+<!doctype html>
+<html lang={currentLang} class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={locale.ui.fallbackMessage} />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    
+    <title>Pause Button · {locale.ui.logo}</title>
+    
+    <!-- SEO: hreflang tags for internationalization -->
+    {Object.entries(hreflangURLs).map(([lang, url]) => 
+      <link rel="alternate" hreflang={lang} href={url} />
+    )}
+    <link rel="alternate" hreflang="x-default" href={hreflangURLs.en} />
+    
+    <link rel="icon" href="data:," />
+    
+    <!-- Critical: Apply theme before page render to prevent flash -->
+    <script is:inline>
+      (function() {
+        try {
+          const html = document.documentElement;
+          let theme = localStorage.getItem('theme');
+          
+          // 如果没有保存的主题，使用系统偏好
+          if (!theme) {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            theme = prefersDark ? 'dark' : 'light';
+            localStorage.setItem('theme', theme);
+          }
+          
+          // 立即应用主题，避免闪烁
+          if (theme === 'dark') {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+        } catch (e) {
+          // localStorage不可用时，使用系统偏好
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (prefersDark) {
+            document.documentElement.classList.add('dark');
+          }
+        }
+      })();
+    </script>
+  </head>
+  <body class="antialiased min-h-screen flex flex-col">
+    <!-- Header -->
+    <Header locale={locale} currentLang={currentLang} />
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col pt-20 pb-16 sm:pb-20 lg:pb-24">
+      <!-- Hero Section - Astro 风格的大留白 -->
+      <div class="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-32 min-h-[calc(100vh-8rem)]">
+        <!-- Hero Text -->
+        <HeroText locale={locale} />
+        
+        <!-- Pause Button -->
+        <div class="mt-12 sm:mt-16 lg:mt-20 animate-fade-in" style={{ animationDelay: '300ms' }}>
+          <PauseButton locale={locale} />
+        </div>
+      </div>
+
+      <!-- Culture Section - Astro 风格的卡片区域 -->
+      <div class="hidden lg:block">
+        <CultureSection locale={locale} />
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <Footer locale={locale} />
+
+    <!-- Keyboard shortcuts -->
+    <script>
+      (function() {
+        'use strict';
+        
+        // Global keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+          // 空格键触发暂停按钮（不在输入框中时）
+          if (e.key === ' ' && e.target === document.body) {
+            e.preventDefault();
+            const pauseBtn = document.getElementById('pause-btn');
+            if (pauseBtn) {
+              pauseBtn.click();
+            }
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
