@@ -1,62 +1,208 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Header from '../components/header/Header.astro';
-import HeroText from '../components/hero/HeroText.astro';
-import PauseButton from '../components/hero/PauseButton.astro';
-import CultureSection from '../components/design/CultureSection.astro';
-import Footer from '../components/footer/Footer.astro';
-import { getLocale } from '../i18n';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import CultureSection from '../components/CultureSection.astro';
+import PauseButton from '../components/PauseButton.astro';
+import { suggestions } from '../data/suggestions.ts';
+import zhCNLocale from '../data/locales/zh-CN.json';
+import enLocale from '../data/locales/en.json';
 
-// 使用Astro的currentLocale（在自动路由模式下，根路径会使用默认语言）
-const currentLang = Astro.currentLocale as 'en' | 'zh-CN';
-const locale = getLocale(currentLang);
+// 获取语言参数
+const url = Astro.url;
+const langParam = url.searchParams.get('lang') || 'zh-CN';
+const currentLang = ['zh-CN', 'en'].includes(langParam) ? langParam : 'zh-CN';
+const locale = currentLang === 'zh-CN' ? zhCNLocale : enLocale;
 
-// 将语言代码转换为HTML lang属性格式
-const htmlLang = currentLang === 'zh-CN' ? 'zh-CN' : 'en';
+// 根据语言设置标题和描述
+const title = currentLang === 'zh-CN' 
+  ? 'Pause Button · 暂停一下' 
+  : 'Pause Button · Take a Pause';
+const description = locale.ui.fallbackMessage;
 ---
 
-<Layout lang={htmlLang}>
-    <!-- Header -->
-    <Header locale={locale} currentLang={currentLang} />
+<Layout title={title} description={description} lang={currentLang}>
+  <!-- Header -->
+  <Header locale={locale} currentLang={currentLang} />
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col pt-20 pb-16 sm:pb-20 lg:pb-24">
-      <!-- Hero Section - Astro 风格的大留白 -->
-      <div class="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-32 min-h-[calc(100vh-8rem)]">
-        <!-- Hero Text -->
-        <HeroText locale={locale} />
-        
-        <!-- Pause Button -->
-        <div class="mt-12 sm:mt-16 lg:mt-20 animate-fade-in" style={{ animationDelay: '300ms' }}>
-          <PauseButton locale={locale} />
+  <!-- Main Content -->
+  <main class="pt-16 min-h-screen flex flex-col">
+    <!-- Hero Section - 占据视口剩余高度 -->
+    <section class="flex-1 flex items-center justify-center px-4 py-12 md:py-16 min-h-[calc(100vh-4rem)]">
+      <div class="w-full max-w-4xl mx-auto">
+        <div class="flex flex-col items-center gap-6 md:gap-8 text-center">
+          <!-- 标题区域 -->
+          <div class="space-y-4 animate-fade-in min-h-[180px] md:min-h-[240px] lg:min-h-[280px] flex flex-col justify-center w-full">
+            <h1 
+              id="main-title"
+              class="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-slate-100 dark:via-slate-300 dark:to-slate-100 bg-clip-text text-transparent tracking-tight transition-opacity duration-300"
+            >
+              {currentLang === 'zh-CN' ? '暂停一下' : 'Take a Pause'}
+            </h1>
+            <p 
+              id="main-description"
+              class="text-lg md:text-xl lg:text-2xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed transition-opacity duration-300 px-4"
+            >
+              {currentLang === 'zh-CN' 
+                ? '在这个快节奏的世界里，给自己一个温柔的暂停' 
+                : 'In this fast-paced world, give yourself a gentle pause'}
+            </p>
+          </div>
+          
+          <!-- 主按钮 -->
+          <div class="animate-fade-in-up animation-delay-200">
+            <PauseButton 
+              buttonText={locale.ui.buttonText}
+              ariaLabel={locale.ui.fallbackMessage}
+            />
+          </div>
+          
+          <!-- 提示文字 -->
+          <p class="text-sm md:text-base text-slate-500 dark:text-slate-500 animate-fade-in animation-delay-400 max-w-md">
+            {currentLang === 'zh-CN'
+              ? '点击按钮，获得一条随机的暂停建议，继续点击可更换建议'
+              : 'Click the button to get a random pause suggestion, keep clicking to change'}
+          </p>
         </div>
       </div>
+    </section>
 
-      <!-- Culture Section - Astro 风格的卡片区域 -->
-      <div class="hidden lg:block">
-        <CultureSection locale={locale} />
-      </div>
-    </main>
+    <!-- Culture Section - 暂停哲学 -->
+    <CultureSection locale={locale} />
+  </main>
 
-    <!-- Footer -->
-    <Footer locale={locale} />
+  <!-- Footer -->
+  <Footer locale={locale} />
 </Layout>
 
-<!-- Keyboard shortcuts -->
-<script>
+<script is:inline define:vars={{ suggestions, currentLang }}>
   (function() {
-    'use strict';
-    
-    // Global keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-      // 空格键触发暂停按钮（不在输入框中时）
-      if (e.key === ' ' && e.target === document.body) {
-        e.preventDefault();
-        const pauseBtn = document.getElementById('pause-btn');
-        if (pauseBtn) {
-          pauseBtn.click();
-        }
+    // 等待 DOM 完全加载
+    function initApp() {
+      const btn = document.getElementById('pause-btn');
+      const titleEl = document.getElementById('main-title');
+      const descriptionEl = document.getElementById('main-description');
+      
+      if (!btn || !titleEl || !descriptionEl) {
+        setTimeout(initApp, 100);
+        return;
       }
-    });
+      
+      let isFirstClick = true;
+      
+      // 显示建议
+      function showSuggestion(suggestion) {
+        // 如果是第一次点击，隐藏标题
+        if (isFirstClick) {
+          titleEl.style.opacity = '0';
+          setTimeout(function() {
+            titleEl.textContent = '';
+            titleEl.style.display = 'none';
+            isFirstClick = false;
+          }, 300);
+        }
+        
+        // 淡出动画
+        descriptionEl.style.opacity = '0';
+        descriptionEl.style.transform = 'translateY(-10px)';
+        
+        // 等待淡出完成后更新内容
+        setTimeout(function() {
+          descriptionEl.textContent = suggestion;
+          descriptionEl.className = 'text-xl md:text-2xl lg:text-3xl text-slate-800 dark:text-slate-100 max-w-3xl mx-auto leading-relaxed font-medium transition-all duration-300 px-4';
+          descriptionEl.style.transform = 'translateY(10px)';
+          
+          // 淡入动画
+          setTimeout(function() {
+            descriptionEl.style.opacity = '1';
+            descriptionEl.style.transform = 'translateY(0)';
+          }, 50);
+        }, 300);
+      }
+      
+      // 按钮点击事件
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+        showSuggestion(randomSuggestion);
+      });
+    }
+    
+    // 多种方式确保 DOM 准备好
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
   })();
 </script>
+
+<style>
+  @import "tailwindcss";
+  
+  /* 淡入动画 */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out forwards;
+  }
+  
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in-up {
+    animation: fade-in-up 0.8s ease-out forwards;
+    opacity: 0;
+  }
+  
+  .animate-slide-up {
+    animation: slide-up 0.6s ease-out forwards;
+  }
+  
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+  }
+  
+  .animation-delay-400 {
+    animation-delay: 0.4s;
+  }
+  
+  /* 响应式优化 */
+  @media (max-width: 640px) {
+    #pause-btn {
+      padding-left: 2rem;
+      padding-right: 2rem;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+      font-size: 1rem;
+      line-height: 1.5rem;
+    }
+  }
+</style>
