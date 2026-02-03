@@ -1,184 +1,166 @@
 ---
-import Logo from './Logo.astro';
-import GithubIcon from './GithubIcon.astro';
-import MobileDrawer from './MobileDrawer.astro';
+import type { Locale } from '../types/locale';
+import type { SupportedLocale } from '../i18n';
+import { supportedLocales, getLanguageURL } from '../i18n';
 
 interface Props {
-  locale: any;
-  currentLang: string;
+  locale: Locale;
+  currentLang: SupportedLocale;
 }
 
 const { locale, currentLang } = Astro.props;
+
 const supportedLangs = [
-  { code: 'zh-CN', label: '中文', flag: '🇨🇳' },
-  { code: 'en', label: 'English', flag: '🇺🇸' }
+  { code: 'zh-CN' as SupportedLocale, label: '中文', flag: '🇨🇳' },
+  { code: 'en' as SupportedLocale, label: 'English', flag: '🇺🇸' }
 ];
 ---
-
-<header class="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-gray-200/60 dark:border-slate-800/60 shadow-sm">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<header class="fixed top-0 left-0 right-0 z-50 glass-effect">
+  <div class="container">
     <div class="flex items-center justify-between h-16">
       <!-- Logo -->
-      <Logo />
+      <div class="flex items-center">
+        <a 
+          href="/" 
+          class="text-lg font-semibold tracking-tight transition-all duration-200 hover:opacity-70 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-accent)] rounded-lg px-2 py-1 -ml-2"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          <span class="inline-flex items-center gap-2.5">
+            <span class="text-xl transition-transform duration-200 hover:rotate-12">⏸</span>
+            <span>{locale.ui.logo}</span>
+          </span>
+        </a>
+      </div>
 
-      <!-- Desktop Navigation -->
-      <nav class="hidden md:flex items-center gap-2 lg:gap-3" aria-label="Navigation">
+      <!-- Right side: GitHub, Language, Theme -->
+      <nav class="flex items-center gap-1 sm:gap-2" aria-label="Navigation">
         <!-- GitHub -->
-        <GithubIcon />
+        <a
+          href={locale.footer.links.github}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="p-2.5 rounded-lg transition-all duration-200 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-accent)] hover:bg-[var(--color-bg-tertiary)]"
+          style={{ color: 'var(--color-text-secondary)' }}
+          aria-label={locale.ui.github}
+        >
+          <svg class="w-5 h-5 transition-transform duration-200 group-hover:scale-110 group-hover:rotate-12" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" clip-rule="evenodd"/>
+          </svg>
+        </a>
 
-        <!-- Language Switcher -->
+        <!-- Language Switcher - 更优雅的设计 -->
         <div class="relative">
           <select
             id="lang-switcher"
             aria-label={locale.ui.language}
-            class="appearance-none pl-3 pr-8 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400/50 dark:focus:ring-slate-600/50 focus:border-transparent transition-all duration-200 cursor-pointer min-w-[120px] shadow-sm"
+            class="appearance-none pl-3 pr-8 py-2 text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer min-w-[100px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-accent)]"
+            style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
             data-current-lang={currentLang}
           >
-            {supportedLangs.map((lang) => (
+            {supportedLangs.map((lang) => 
               <option value={lang.code} selected={lang.code === currentLang}>
                 {lang.flag} {lang.label}
               </option>
-            ))}
+            )}
           </select>
           <!-- Custom dropdown arrow -->
           <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5">
-            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4" style={{ color: 'var(--color-text-tertiary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
           </div>
         </div>
 
-        <!-- Theme Switcher -->
+        <!-- Theme Switcher - Astro 风格的改进视觉反馈 -->
         <button
           id="theme-switcher"
           type="button"
-          class="p-2.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all duration-200 group shadow-sm"
+          class="p-2.5 rounded-lg transition-all duration-200 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-accent)] hover:bg-[var(--color-bg-tertiary)]"
+          style={{ color: 'var(--color-text-secondary)' }}
           aria-label={locale.ui.theme}
           aria-pressed="false"
         >
           <!-- Sun icon (light mode) -->
-          <svg id="sun-icon" class="w-5 h-5 hidden dark:block transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <svg id="sun-icon" class="w-5 h-5 hidden dark:block transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z"/>
           </svg>
           <!-- Moon icon (dark mode) -->
-          <svg id="moon-icon" class="w-5 h-5 block dark:hidden transition-transform group-hover:-rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <svg id="moon-icon" class="w-5 h-5 block dark:hidden transition-transform duration-300 group-hover:-rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 0 1 8.646 3.646 9 9 0 1 0 18 9 9 9 0 0 1 15.354 20.354z"/>
           </svg>
         </button>
       </nav>
-
-      <!-- Mobile Menu Button -->
-      <MobileDrawer locale={locale} currentLang={currentLang} />
     </div>
   </div>
 </header>
 
-<script is:inline>
+<script>
   (function() {
     'use strict';
     
-      function initHeader() {
-      // 主题管理
-      function getTheme() {
-        if (typeof localStorage !== 'undefined') {
-          const stored = localStorage.getItem('theme');
-          if (stored === 'dark' || stored === 'light') {
-            return stored;
-          }
-        }
-        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      }
-
-      function setTheme(theme) {
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-        if (typeof localStorage !== 'undefined') {
-          localStorage.setItem('theme', theme);
-        }
-        // 通知其他组件
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('themechange', { detail: { theme } }));
-        }
-      }
-
-      function updateThemeButton() {
-        const isDark = document.documentElement.classList.contains('dark');
-        const themeSwitcher = document.getElementById('theme-switcher');
-        if (themeSwitcher) {
-          themeSwitcher.setAttribute('aria-pressed', isDark.toString());
-        }
-      }
-
+    function initHeader() {
       // Theme switcher
       const themeSwitcher = document.getElementById('theme-switcher');
       if (themeSwitcher) {
-        // 初始化按钮状态
-        updateThemeButton();
-        
-        themeSwitcher.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          const currentTheme = getTheme();
-          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-          setTheme(newTheme);
+        function updateThemeButton() {
+          const isDark = document.documentElement.classList.contains('dark');
+          themeSwitcher.setAttribute('aria-pressed', isDark.toString());
+        }
+
+        themeSwitcher.addEventListener('click', () => {
+          const isDark = document.documentElement.classList.toggle('dark');
+          try {
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+          } catch (e) {
+            // localStorage不可用，静默失败
+          }
           updateThemeButton();
         });
 
-        // 监听主题变化事件（来自其他组件）
-        if (typeof window !== 'undefined') {
-          window.addEventListener('themechange', function(e) {
-            updateThemeButton();
-          });
-        }
+        updateThemeButton();
       }
 
       // Language switcher
-      const langSwitcher = document.getElementById('lang-switcher');
+      const langSwitcher = document.getElementById('lang-switcher') as HTMLSelectElement;
       if (langSwitcher) {
-        // 初始化select值
-        const initialLang = langSwitcher.getAttribute('data-current-lang') || 'zh-CN';
-        if (langSwitcher.value !== initialLang) {
-          langSwitcher.value = initialLang;
+        const currentLangValue = langSwitcher.getAttribute('data-current-lang') || '';
+        const supportedLangs = ['zh-CN', 'en'];
+        
+        // Ensure select value matches currentLang
+        if (langSwitcher.value !== currentLangValue) {
+          langSwitcher.value = currentLangValue;
         }
         
         langSwitcher.addEventListener('change', function(e) {
-          const newLang = langSwitcher.value;
+          const target = e.target as HTMLSelectElement;
+          const newLang = target.value;
           
-          // 验证语言代码
-          if (!newLang || !['zh-CN', 'en'].includes(newLang)) {
-            // 恢复原值
-            const currentLang = langSwitcher.getAttribute('data-current-lang') || 'zh-CN';
-            langSwitcher.value = currentLang;
+          if (!newLang || newLang === currentLangValue) {
+            // Reset to current language if same or invalid
+            setTimeout(() => {
+              target.value = currentLangValue;
+            }, 100);
+            return;
+          }
+
+          if (!supportedLangs.includes(newLang)) {
+            // Reset to current language
+            setTimeout(() => {
+              target.value = currentLangValue;
+            }, 100);
             return;
           }
           
-          // 获取当前URL中的语言参数
-          const urlParams = new URLSearchParams(window.location.search);
-          const currentLangParam = urlParams.get('lang') || 'zh-CN';
-          
-          // 如果选择的是当前语言，不做任何操作
-          if (newLang === currentLangParam) {
-            langSwitcher.value = currentLangParam;
-            return;
-          }
-          
-          // 切换语言 - 重新加载页面
           try {
-            // 构建新的URL，保留其他查询参数
             const url = new URL(window.location.href);
             url.searchParams.set('lang', newLang);
-            const newUrl = url.toString();
-            
-            // 强制页面重新加载
-            window.location.href = newUrl;
+            // 使用 replace 而不是 href，避免在历史记录中留下记录
+            window.location.replace(url.toString());
           } catch (error) {
-            console.error('Failed to switch language:', error);
-            // 恢复原值
-            const currentLang = langSwitcher.getAttribute('data-current-lang') || 'zh-CN';
-            langSwitcher.value = currentLang;
+            // Reset on error
+            setTimeout(() => {
+              target.value = currentLangValue;
+            }, 100);
           }
         });
       }
@@ -188,7 +170,7 @@ const supportedLangs = [
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initHeader);
     } else {
-      initHeader();
+      setTimeout(initHeader, 0);
     }
   })();
 </script>

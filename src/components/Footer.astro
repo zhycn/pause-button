@@ -1,40 +1,45 @@
 ---
+import type { Locale } from '../types/locale';
+
 interface Props {
-  locale: any;
+  locale: Locale;
 }
 
 const { locale } = Astro.props;
 ---
 
-<footer class="w-full border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 mt-auto">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+<footer class="w-full mt-auto" style="border-top: 1px solid var(--color-border); background: var(--color-bg-elevated);">
+  <div class="container py-8 lg:py-12">
     <div class="flex flex-col md:flex-row items-center justify-between gap-6">
       <!-- Links -->
-      <nav class="flex items-center gap-4 md:gap-6 text-sm flex-wrap justify-center" aria-label="Footer navigation">
+      <nav class="flex items-center gap-6 text-sm" aria-label="Footer navigation">
         <a
           href={locale.footer.links.github}
           target="_blank"
           rel="noopener noreferrer"
-          class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors duration-200 font-medium"
+          class="font-medium transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-accent)] rounded"
+          style="color: var(--color-text-secondary);"
         >
           GitHub
         </a>
         <a
           href={locale.footer.links.docs}
-          class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors duration-200 font-medium"
+          class="font-medium transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-accent)] rounded"
+          style="color: var(--color-text-secondary);"
         >
           Docs
         </a>
         <a
           href={locale.footer.links.about}
-          class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors duration-200 font-medium"
+          class="font-medium transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-accent)] rounded"
+          style="color: var(--color-text-secondary);"
         >
           About
         </a>
       </nav>
 
       <!-- Version & Copyright -->
-      <div class="text-sm text-slate-500 dark:text-slate-500 text-center md:text-right">
+      <div class="text-sm text-center md:text-right" style="color: var(--color-text-tertiary);">
         <span class="mr-2 font-mono">{locale.footer.version}</span>
         <span>{locale.footer.copyright}</span>
       </div>

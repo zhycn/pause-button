@@ -1,116 +1,189 @@
 ---
-// 主暂停按钮组件 - 高级感黑白主题设计
-import PauseIcon from './icons/PauseIcon.astro';
+import type { Locale } from '../types/locale';
 
 interface Props {
-  buttonText?: string;
-  ariaLabel?: string;
+  locale: Locale;
 }
 
-const { 
-  buttonText = "暂停一下",
-  ariaLabel = "点击获取暂停建议"
-} = Astro.props;
+const { locale } = Astro.props;
 ---
 
 <button
   id="pause-btn"
-  class="pause-button group relative inline-flex items-center justify-center gap-3 px-8 md:px-10 py-4 md:py-5 rounded-lg font-semibold text-base md:text-lg transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98] overflow-hidden"
-  aria-label={ariaLabel}
+  type="button"
+  class="relative group px-16 py-8 sm:px-24 sm:py-10 md:px-28 md:py-12 rounded-full font-black text-lg sm:text-xl md:text-2xl focus:outline-none focus-visible:ring-4 focus-visible:ring-offset-4 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-950 focus-visible:ring-black/20 dark:focus-visible:ring-white/20 transition-all duration-500 ease-spring overflow-hidden select-none"
+  style={{ 
+    background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%)',
+    color: 'var(--color-bg-primary)',
+    boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.2), 0 4px 12px -4px rgba(0, 0, 0, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.1)',
+    transform: 'translateY(0)',
+    textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+  }}
+  aria-label={locale.ui.fallbackMessage}
+  data-suggestions={JSON.stringify(locale.suggestions)}
 >
-  <!-- 按钮内容 -->
-  <span class="relative z-10 flex items-center gap-2 md:gap-3">
-    <PauseIcon class="w-5 h-5 md:w-6 md:h-6 transition-all duration-300 group-hover:scale-110" />
-    <span class="relative font-medium tracking-tight">{buttonText}</span>
+  <!-- 背景渐变光效 -->
+  <span class="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
+  
+  <!-- 悬停时的径向光晕 - 使用多个渐变叠加 -->
+  <span class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: 'radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 40%, transparent 70%)' }}></span>
+  
+  <!-- Text Content -->
+  <span class="relative z-10 flex items-center gap-4 sm:gap-5">
+    <span class="text-3xl sm:text-4xl md:text-5xl transition-all duration-500 group-hover:scale-125 group-hover:rotate-12 group-active:scale-95 will-change-transform">⏸</span>
+    <span class="tracking-[-0.02em] font-extrabold">{locale.ui.buttonText}</span>
   </span>
   
-  <!-- 点击时的微妙反馈 -->
-  <span class="absolute inset-0 rounded-lg bg-current opacity-0 group-active:opacity-5 transition-opacity duration-200"></span>
+  <!-- 按下时的涟漪效果 -->
+  <span class="absolute inset-0 rounded-full bg-white/30 scale-0 clicking:scale-150 opacity-0 clicking:opacity-100 transition-all duration-300 ease-out pointer-events-none"></span>
+  
+  <!-- 底部高光 -->
+  <span class="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/10 to-transparent rounded-full opacity-50"></span>
 </button>
 
-<style>
-  /* 高级感的黑白主题按钮设计 */
-  .pause-button {
-    position: relative;
-    isolation: isolate;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-  }
-  
-  /* 亮色模式 - 深色按钮，白色文字 */
-  .pause-button {
-    background: #0f172a;
-    color: #ffffff;
-    border: 1px solid rgba(15, 23, 42, 0.1);
-    box-shadow: 
-      0 1px 2px 0 rgba(0, 0, 0, 0.05),
-      0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
-  
-  .pause-button:hover {
-    background: #1e293b;
-    border-color: rgba(15, 23, 42, 0.2);
-    transform: translateY(-1px);
-    box-shadow: 
-      0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 10px 15px -3px rgba(0, 0, 0, 0.1),
-      0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  }
-  
-  .pause-button:focus {
-    outline: 2px solid rgba(15, 23, 42, 0.5);
-    outline-offset: 2px;
-  }
-  
-  /* 暗色模式 - 白色按钮，深色文字 */
-  .dark .pause-button {
-    background: #ffffff;
-    color: #0f172a;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 
-      0 1px 2px 0 rgba(0, 0, 0, 0.1),
-      0 4px 6px -1px rgba(0, 0, 0, 0.2),
-      0 2px 4px -1px rgba(0, 0, 0, 0.15);
-  }
-  
-  .dark .pause-button:hover {
-    background: #f8fafc;
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
-    box-shadow: 
-      0 4px 6px -1px rgba(0, 0, 0, 0.2),
-      0 10px 15px -3px rgba(0, 0, 0, 0.3),
-      0 4px 6px -2px rgba(0, 0, 0, 0.2);
-  }
-  
-  .dark .pause-button:focus {
-    outline: 2px solid rgba(255, 255, 255, 0.5);
-    outline-offset: 2px;
-  }
-  
-  /* 平滑的过渡动画 */
-  .pause-button * {
-    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
-  }
-  
-  /* 图标动画 */
-  .pause-button:hover svg {
-    transform: scale(1.05);
-  }
-  
-  /* 响应式优化 */
-  @media (max-width: 640px) {
-    .pause-button {
-      padding: 0.875rem 1.5rem;
-      font-size: 0.9375rem;
+<script>
+  (function() {
+    'use strict';
+    
+    // Get suggestions from JSON data attribute
+    const suggestionsData = document.getElementById('pause-btn')?.getAttribute('data-suggestions');
+    let suggestions = [];
+    
+    if (suggestionsData) {
+      try {
+        suggestions = JSON.parse(suggestionsData);
+      } catch (e) {
+        console.error('[PauseButton] Failed to parse suggestions:', e);
+      }
     }
+    
+    // @ts-ignore - Global variable for suggestions
+    window.__pauseButtonSuggestions = suggestions;
+    
+    function initPauseButton() {
+      const btn = document.getElementById('pause-btn');
+      if (!btn) {
+        console.error('[PauseButton] Button element not found');
+        return;
+      }
+
+      // @ts-ignore - Global variable for suggestions
+      const suggestions = window.__pauseButtonSuggestions;
+      if (!Array.isArray(suggestions) || suggestions.length === 0) {
+        console.error('[PauseButton] No suggestions available', suggestions);
+        return;
+      }
+
+      function handleClick(e: Event) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Prevent multiple rapid clicks
+        if (btn.classList.contains('clicking')) {
+          return;
+        }
+        
+        btn.classList.add('clicking');
+        
+        const randomIndex = Math.floor(Math.random() * suggestions.length);
+        const randomSuggestion = suggestions[randomIndex];
+        
+        if (!randomSuggestion) {
+          console.warn('[PauseButton] Invalid suggestion at index', randomIndex);
+          btn.classList.remove('clicking');
+          return;
+        }
+        
+        // Dispatch custom event to update hero text
+        const event = new CustomEvent('suggestion-updated', {
+          detail: { suggestion: randomSuggestion },
+          bubbles: true,
+          cancelable: false
+        });
+        
+        document.dispatchEvent(event);
+        
+        // Remove clicking class after animation
+        setTimeout(() => {
+          btn.classList.remove('clicking');
+        }, 200);
+      }
+
+      // 点击事件
+      btn.addEventListener('click', handleClick);
+      
+      // 键盘支持：空格键触发
+      btn.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          handleClick(e);
+        }
+      });
+      console.log('[PauseButton] Initialized successfully with', suggestions.length, 'suggestions');
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPauseButton);
+    } else {
+      setTimeout(initPauseButton, 0);
+    }
+  })();
+</script>
+
+<style>
+  /* Tailwind CSS 4 风格的按钮优化 - 充分利用硬件加速 */
+  #pause-btn {
+    will-change: transform, box-shadow, filter;
+    transform: translateZ(0);
+    -webkit-tap-highlight-color: transparent;
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+  
+  /* 悬停状态 - 3D 提升效果 */
+  #pause-btn:hover {
+    transform: translateY(-6px) translateZ(0) scale(1.02);
+    box-shadow: 
+      0 20px 60px -15px rgba(0, 0, 0, 0.3),
+      0 10px 30px -10px rgba(0, 0, 0, 0.2),
+      0 4px 12px -4px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.2) !important;
+    filter: brightness(1.05);
+  }
+  
+  /* 按下状态 - 弹性反馈 */
+  #pause-btn.clicking {
+    transform: scale(0.96) translateY(-2px) translateZ(0);
+    box-shadow: 
+      0 8px 30px -10px rgba(0, 0, 0, 0.25),
+      0 4px 12px -4px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  /* 激活状态 */
+  #pause-btn:active {
+    transform: scale(0.96) translateY(0) translateZ(0);
+  }
+  
+  /* 聚焦状态 */
+  #pause-btn:focus-visible {
+    transform: translateY(-4px) translateZ(0);
+  }
+  
+  /* 深色模式下的按钮样式 */
+  .dark #pause-btn {
+    box-shadow: 
+      0 10px 40px -10px rgba(0, 0, 0, 0.5),
+      0 4px 12px -4px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  }
+  
+  .dark #pause-btn:hover {
+    box-shadow: 
+      0 20px 60px -15px rgba(0, 0, 0, 0.7),
+      0 10px 30px -10px rgba(0, 0, 0, 0.5),
+      0 4px 12px -4px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.25) !important;
   }
 </style>
-
-<script>
-  const btn = document.getElementById('pause-btn');
-  if (btn && typeof window !== 'undefined') {
-    // 按钮点击事件由父组件处理
-  }
-</script>
