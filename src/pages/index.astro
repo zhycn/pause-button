@@ -1,177 +1,87 @@
 ---
-// src/pages/index.astro
-const suggestions = [
-  "站起来，盯着窗外云朵看1分钟。",
-  "喝一口水，感受它流过喉咙的温度。",
-  "给三年前的自己发一条短信：你做得很好。",
-  "打开音乐，只听副歌部分。",
-  "假装你是新来的实习生，重新观察你的办公桌。",
-  "深呼吸三次，吸气4秒，呼气6秒。",
-  "写下此刻最让你焦虑的事，然后撕掉它。",
-  "闭上眼睛，回忆一个让你笑出声的瞬间。",
-  "走到最近的绿植前，对它说声谢谢。",
-  "暂停工作，只为欣赏此刻的阳光。",
-  "打开备忘录，写一句诗（哪怕很烂）。",
-  "把手机倒扣，静静坐30秒。",
-  "想象你正在教别人做你现在的工作，你会怎么讲？",
-  "去倒杯温水，慢慢喝完。",
-  "望向远处，让眼睛放松聚焦。",
-  "轻轻转动你的肩膀，释放那里的紧张。",
-  "回想今天早上醒来时的第一个念头。",
-  "用非惯用手写一个字，感受笨拙的专注。",
-  "闻一闻你的手背，是不是有咖啡或纸张的味道？",
-  "在心里对某个同事说一句真诚的感谢。",
-  "看看今天的日期，记住它——这是你活过的又一天。",
-  "把手放在胸口，感受心跳的节奏。",
-  "想象你正站在山顶，风吹过你的头发。",
-  "删掉一条你犹豫很久没发的朋友圈草稿。",
-  "把屏幕亮度调低一点，温柔对待你的眼睛。",
-  "默念三件今天已经完成的小事。",
-  "站起来，踮起脚尖10秒，再缓缓放下。",
-  "想象你的压力是一片树叶，随水流走。",
-  "打开窗户，听30秒外面的声音。",
-  "用指尖轻轻敲打桌面，像在弹一首无声的曲子。",
-  "回想你童年最喜欢的一个午后。",
-  "把椅子往后拉一点，给自己多留点空间。",
-  "对自己说：‘我已经做得够好了。’",
-  "观察你手边的一件物品，找出三个你从未注意的细节。",
-  "闭眼，想象你正躺在柔软的草地上。",
-  "把电脑壁纸换成纯色（比如浅灰或米白）。",
-  "写下‘我允许自己休息’，然后读三遍。",
-  "轻轻按摩你的太阳穴10秒。",
-  "想想你最近一次真心微笑是因为什么。",
-  "把键盘推远一点，双手交叠放在桌上。",
-  "在纸上画一个圆，不许抬笔。",
-  "回想一个你帮助过别人的小事。",
-  "看看你的手指，它们今天为你做了很多。",
-  "想象你正漂浮在温暖的海面上。",
-  "把耳机摘下来，让耳朵休息一会儿。",
-  "默数5次呼吸，只关注气息进出。",
-  "给未来的自己写一句鼓励的话，存为草稿。",
-  "转动你的脚踝，左右各5圈。",
-  "看看天花板，找一个你平时忽略的角落。",
-  "想象你的思绪是一群鸟，看着它们飞远。",
-  "轻轻哼一段你小时候的儿歌。",
-  "把手机调成黑白屏（设置里有），减少刺激。",
-  "回想你第一次拿到工资时的心情。",
-  "用纸巾擦一擦屏幕，也擦亮你的注意力。",
-  "对自己说：‘这不是逃避，是充电。’",
-  "观察一杯水中的气泡如何上升、破裂。",
-  "把鼠标放在左手边试试（如果你是右撇子）。",
-  "想象你正坐在图书馆最安静的角落。",
-  "轻轻拍打自己的大腿，像在安抚一个朋友。",
-  "写下‘此刻，我安全’，贴在显示器边缘。",
-  "闭眼，想象你正被阳光包裹。",
-  "把任务清单折叠起来，暂时看不见它。",
-  "回想你最近一次感到平静是什么时候。",
-  "用舌尖顶住上颚，感受这个微妙的动作。",
-  "看看你的影子，它一直默默陪着你。",
-  "想象你的大脑是一片森林，风正轻轻吹过。",
-  "把椅子转一圈，换个角度看世界。",
-  "轻轻搓热双手，再捂住眼睛3秒。",
-  "回想你名字的由来，它承载了什么期待？",
-  "把电脑音量调到最低，进入静音模式。",
-  "在心里种下一朵花，给它浇水、晒太阳。",
-  "观察你的呼吸如何让衣服微微起伏。",
-  "想象你正坐在火车靠窗的位置，看风景掠过。",
-  "把一张便利贴折成小船，放在桌角。",
-  "轻轻咬一下嘴唇，感受存在的真实感。",
-  "回想你上一次完全沉浸做一件事的状态。",
-  "把光标停在文档空白处，什么都不写。",
-  "想象你的疲惫是一块冰，正在慢慢融化。",
-  "用鼻子深吸一口气，用嘴缓缓吐出。",
-  "看看你的鞋带，是不是松了？系紧它，也系紧自己。",
-  "在心里对世界说：‘我需要一分钟。’",
-  "把屏幕上的所有窗口最小化，只留下空白。",
-  "回想你最喜欢的季节，此刻它在哪里？",
-  "轻轻摇头，像在甩掉多余的思绪。",
-  "想象你正站在雨中，但雨是温暖的。",
-  "把键盘上的字母F和J摸一摸，那是回家的路。",
-  "闭眼，数你还能记得多少种花的名字。",
-  "对自己说：‘我不必完美，我只需存在。’",
-  "观察你呼出的气，在冷天是否成雾？",
-  "把鼠标指针移到屏幕中央，静静看着它。",
-  "想象你的注意力是一束光，现在让它散开。",
-  "轻轻耸肩，再彻底放松，重复三次。",
-  "回想你最近一次被人真诚夸奖的感觉。",
-  "把电脑合上（如果可以），只面对自己10秒。",
-  "在心里放一首只有你能听见的歌。",
-  "看看你的手腕，那里有脉搏，也有时间。",
-  "想象你正躺在雪地上，印出一个天使。",
-  "用指尖轻触桌面，感受木头/金属的纹理。",
-  "对自己说：‘这一分钟，属于我。’"
-];
+import Header from '../components/Header.astro';
+import HeroText from '../components/HeroText.astro';
+import PauseButton from '../components/PauseButton.astro';
+import CultureSection from '../components/CultureSection.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
 
-function getRandomSuggestion() {
-  return suggestions[Math.floor(Math.random() * suggestions.length)];
+// Language detection and loading
+const supportedLocales = ['zh-CN', 'en'];
+
+// Get language from URL param or browser preference
+const urlParams = Astro.url.searchParams;
+let userLang = urlParams.get('lang') || '';
+
+// Default to 'en' if no lang param (browser detection happens client-side)
+if (!userLang) {
+  userLang = 'en';
 }
+
+// Load locale data
+const localeData = await import(`../data/locales/${userLang}.json`);
+const locale = localeData.default;
 ---
 
-<html lang="zh-CN">
+<html lang={userLang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Pause Button · 暂停一下</title>
-    <meta name="description" content="点击按钮，获得一条温柔的摸鱼建议。" />
-    <!-- 禁用 favicon 警告 -->
+    <title>Pause Button · {locale.ui.logo}</title>
+    <meta name="description" content={locale.ui.fallbackMessage} />
     <link rel="icon" href="data:," />
-    <!-- Tailwind 已由 Astro 自动注入 -->
   </head>
   <body class="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-    <div id="app" class="min-h-screen flex flex-col items-center justify-center p-6">
+    <!-- Header -->
+    <Header locale={locale} currentLang={userLang} />
 
-      <!-- 主按钮 -->
-      <button
-        id="pause-btn"
-        class="relative group px-8 py-6 rounded-full bg-black dark:bg-white text-white dark:text-black font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-        aria-label="点击获取摸鱼建议"
-      >
-        <span class="relative z-10">⏸️ 暂停一下</span>
-        <!-- 按钮微动效 -->
-        <span class="absolute inset-0 rounded-full bg-gray-800 dark:bg-gray-200 opacity-0 group-hover:opacity-20 transition-opacity"></span>
-      </button>
-
-      <!-- 建议弹层（初始隐藏） -->
-      <div
-        id="suggestion-modal"
-        class="fixed inset-0 bg-black/70 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-300"
-      >
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md mx-4 shadow-2xl transform scale-95 transition-transform duration-300">
-          <p id="suggestion-text" class="text-center text-gray-800 dark:text-gray-200 text-xl leading-relaxed"></p>
-        </div>
+    <!-- Main Content -->
+    <main class="pt-24 pb-12 min-h-screen flex flex-col">
+      <!-- Hero Section -->
+      <div class="flex-1 flex flex-col items-center justify-center px-6">
+        <!-- Hero Text -->
+        <HeroText locale={locale} />
+        
+        <!-- Pause Button -->
+        <PauseButton locale={locale} />
       </div>
 
-    </div>
+      <!-- Culture Section (only on large screens) -->
+      <div class="hidden lg:block">
+        <CultureSection locale={locale} />
+      </div>
+    </main>
 
-    <script define:vars={{ suggestions }}>
-      const btn = document.getElementById('pause-btn');
-      const modal = document.getElementById('suggestion-modal');
-      const textEl = document.getElementById('suggestion-text');
+    <!-- Footer -->
+    <Footer locale={locale} />
 
-      if (btn && modal && textEl) {
-        const modalContent = modal.querySelector('div');
-        
-        btn.addEventListener('click', () => {
-          const random = suggestions[Math.floor(Math.random() * suggestions.length)];
-          textEl.textContent = random;
+    <!-- Client-side language detection -->
+    <script>
+      // Initialize theme on page load
+      (function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+
+      // Auto-detect language if no lang param
+      (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (!urlParams.has('lang')) {
+          const browserLang = navigator.language || navigator.languages?.[0] || 'en';
+          const supportedLocales = ['zh-CN', 'en'];
+          const detectedLang = supportedLocales.find(lang => 
+            browserLang === lang || browserLang.startsWith(lang.split('-')[0])
+          ) || 'en';
           
-          // 显示弹窗
-          modal.classList.remove('opacity-0', 'pointer-events-none');
-          if (modalContent) {
-            modalContent.classList.remove('scale-95');
-            modalContent.classList.add('scale-100');
+          if (detectedLang !== 'en') { // Only redirect if not default
+            const url = new URL(window.location.href);
+            url.searchParams.set('lang', detectedLang);
+            window.location.href = url.toString();
           }
-
-          // 3秒后自动隐藏
-          setTimeout(() => {
-            modal.classList.add('opacity-0', 'pointer-events-none');
-            if (modalContent) {
-              modalContent.classList.remove('scale-100');
-              modalContent.classList.add('scale-95');
-            }
-          }, 3000);
-        });
-      }
+        }
+      })();
     </script>
   </body>
 </html>
